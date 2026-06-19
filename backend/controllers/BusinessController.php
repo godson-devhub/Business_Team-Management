@@ -109,4 +109,60 @@ class BusinessController extends Controller
 
         throw new NotFoundHttpException('Business not found.');
     }
+
+
+    /* =========================
+ * VIEW BUSINESS
+ * ========================= */
+    public function actionView($id)
+    {
+        $business = $this->findModel($id);
+
+        $branches = \common\models\Branch::find()
+            ->where(['business_id' => $business->id])
+            ->all();
+
+        $totalSellers = 0;
+        $totalProducts = 0;
+        $totalSales = 0;
+        $totalProfit = 0;
+        $stockValue = 0;
+
+        foreach ($branches as $branch) {
+
+            $totalSellers += $branch->sellerCount;
+
+            $totalProducts += $branch->productCount;
+
+            $totalSales += $branch->totalSales;
+
+            $totalProfit += $branch->totalProfit;
+
+        /*
+         * stock value
+         * selling_price * stock_quantity
+         */
+
+            $products = $branch->products;
+
+            foreach ($products as $product) {
+
+                $stockValue +=
+                   ($product->selling_price ?? 0)
+                   *
+                   ($product->stock_quantity ?? 0);
+            }
+        }
+
+        return $this->render('view', [
+            'business' => $business,
+            'branches' => $branches,
+
+            'totalSellers' => $totalSellers,
+            'totalProducts' => $totalProducts,
+            'totalSales' => $totalSales,
+            'totalProfit' => $totalProfit,
+            'stockValue' => $stockValue,
+        ]);
+    }
 }

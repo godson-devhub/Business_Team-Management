@@ -9,34 +9,15 @@ use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 
 /**
- * Product Model (ERP CORE INVENTORY)
- *
- * Branch → has many products
- *
- * @property int $id
- * @property int $branch_id
- * @property string $name
- * @property float $buying_price
- * @property float $selling_price
- * @property int $stock_quantity
- * @property int $low_stock_threshold
- * @property string|null $description
- * @property int $created_at
- * @property int $updated_at
+ * Product Model (ERP CORE INVENTORY - CLEAN VERSION)
  */
 class Product extends ActiveRecord
 {
-    /**
-     * TABLE NAME
-     */
     public static function tableName(): string
     {
         return '{{%product}}';
     }
 
-    /**
-     * TIMESTAMP BEHAVIOR
-     */
     public function behaviors(): array
     {
         return [
@@ -44,112 +25,138 @@ class Product extends ActiveRecord
         ];
     }
 
-    /**
+    /* =========================
      * VALIDATION RULES
-     */
+     * ========================= */
     public function rules(): array
     {
         return [
 
+            // REQUIRED FIELDS
             [['name', 'branch_id', 'buying_price', 'selling_price'], 'required'],
 
-            [['branch_id', 'stock_quantity', 'low_stock_threshold'], 'integer'],
+            // TYPES (MATCH DATABASE)
+            [['branch_id', 'stock_quantity', 'min_stock_alert', 'status'], 'integer'],
 
             [['buying_price', 'selling_price'], 'number'],
 
-            [['description'], 'string'],
-
             [['name'], 'string', 'max' => 255],
 
+            // DEFAULT VALUES
             ['stock_quantity', 'default', 'value' => 0],
+            ['min_stock_alert', 'default', 'value' => 5],
+            ['status', 'default', 'value' => 1],
 
-            ['low_stock_threshold', 'default', 'value' => 5],
+            // SAFETY VALIDATION
+            ['stock_quantity', 'integer', 'min' => 0],
+            ['min_stock_alert', 'integer', 'min' => 0],
+            ['buying_price', 'number', 'min' => 0],
+            ['selling_price', 'number', 'min' => 0],
 
-            [
-                ['branch_id'],
-                'exist',
-                'targetClass' => Branch::class,
-                'targetAttribute' => ['branch_id' => 'id'],
-                'message' => 'Branch does not exist'
-            ],
+            ['sku', 'unique'],
+            [['created_by'], 'required'],
         ];
     }
 
-    // =========================
-    // RELATIONS
-    // =========================
+    /* =========================
+     * RELATIONS
+     * ========================= */
 
-    /**
-     * Product belongs to branch
-     */
     public function getBranch()
     {
         return $this->hasOne(Branch::class, ['id' => 'branch_id']);
     }
 
-    /**
-     * Product → Sale Items
-     */
     public function getSaleItems()
     {
         return $this->hasMany(SaleItem::class, ['product_id' => 'id']);
     }
 
-    /**
-     * Product → Purchase Items
-     */
     public function getPurchaseItems()
     {
         return $this->hasMany(PurchaseItem::class, ['product_id' => 'id']);
     }
 
-    // =========================
-    // BUSINESS LOGIC HELPERS
-    // =========================
-
-    /**
-     * Check if stock is low
-     */
-    public function isLowStock(): bool
+    public function getStockMovements()
     {
-        return $this->stock_quantity <= $this->low_stock_threshold;
+        return $this->hasMany(StockMovement::class, ['product_id' => 'id']);
     }
 
-    /**
-     * Calculate profit per unit
-     */
+    /* =========================
+     * BUSINESS LOGIC
+     * ========================= */
+
+    public function getIsLowStock(): bool
+    {
+        return $this->stock_quantity <= ($this->min_stock_alert ?? 5);
+    }
+
     public function getUnitProfit(): float
     {
         return (float) ($this->selling_price - $this->buying_price);
     }
 
-    /**
-     * Increase stock (purchase)
-     */
+    /* =========================
+     * STOCK IN (PURCHASE)
+     * ========================= */
     public function increaseStock(int $qty): bool
     {
-        $this->stock_quantity += $qty;
-        return $this->save(false);
-    }
-
-    /**
-     * Decrease stock (sale)
-     */
-    public function decreaseStock(int $qty): bool
-    {
-        if ($this->stock_quantity < $qty) {
+        if ($qty <= 0) {
             return false;
         }
 
-        $this->stock_quantity -= $qty;
-        return $this->save(false);
+        $this->stock_quantity += $qty;
+
+        $saved = $this->save(false);
+
+        if ($saved && class_exists(StockMovement::class)) {
+            StockMovement::logMovement(
+                $this->id,
+                $this->branch_id,
+                'IN',
+                $qty,
+                'Stock IN (Purchase)'
+            );
+        }
+
+        return $saved;
     }
 
-    /**
-     * Total value of stock (inventory value)
-     */
+    /* =========================
+     * STOCK OUT (SALE)
+     * ========================= */
+    public function decreaseStock(int $qty): bool
+    {
+        if ($qty <= 0 || $this->stock_quantity < $qty) {
+            return false;
+        }
+
+        $previousStock = (int) $this->stock_quantity;
+        $this->stock_quantity -= $qty;
+
+        $saved = $this->save(false);
+
+        if ($saved && class_exists(StockMovement::class)) {
+            StockMovement::logMovement(
+                (int)$this->id,
+                (int)$this->branch_id,
+                (int)Yii::$app->user->id,
+                'OUT',
+                (int)$qty,
+                $previousStock,
+                (int)$this->stock_quantity,
+                'Stock OUT (Sale)'
+            );
+        }
+
+        return $saved;
+    }
+
+    /* =========================
+     * STOCK VALUE
+     * ========================= */
     public function getStockValue(): float
     {
-        return (float) ($this->stock_quantity * $this->buying_price);
+        return (float) ($this->stock_quantity * $this->selling_price);
     }
 }

@@ -4,40 +4,86 @@ declare(strict_types=1);
 
 /** @var yii\web\View $this */
 
-use yii\helpers\Html;
-
 ?>
-<footer id="footer" class="mt-auto py-3 bg-body-tertiary">
-    <div class="container">
-        <div class="row text-body-secondary">
-            <div class="col-md-6 text-center text-md-start">&copy; <?= Html::encode(Yii::$app->name) ?> <?= date('Y') ?></div>
-            <div class="col-md-6 text-center text-md-end">
-                <a href="https://www.yiiframework.com/" rel="external" class="text-body-secondary text-decoration-none">
-                    <?= Yii::t(
-                        'yii',
-                        'Powered by {yii}',
-                        [
-                            'yii' => '',
-                        ],
-                    ) ?>
-                    <?= Html::img(
-                        '@web/images/yii3_full_for_light.svg',
-                        [
-                            'alt' => 'Yii Framework',
-                            'class' => 'align-text-bottom footer-logo-light',
-                            'height' => '28',
-                        ],
-                    ) ?>
-                    <?= Html::img(
-                        '@web/images/yii3_full_for_dark.svg',
-                        [
-                            'alt' => 'Yii Framework',
-                            'class' => 'align-text-bottom footer-logo-dark',
-                            'height' => '28',
-                        ],
-                    ) ?>
-                </a>
-            </div>
-        </div>
+
+<footer class="app-footer">
+
+    <div class="footer-left">
+        © <?= date('Y') ?> Business Team Management System
     </div>
+
+    <div class="footer-right">
+        Version 1.0.0
+    </div>
+
 </footer>
+
+<style>
+
+/* =========================
+THEME VARIABLES
+========================= */
+
+:root{
+    --footer-bg: rgba(255,255,255,.03);
+    --border: rgba(255,255,255,.08);
+    --text-muted: #94a3b8;
+}
+
+/* LIGHT MODE SUPPORT */
+[data-bs-theme="light"]{
+    --footer-bg: rgba(255,255,255,.9);
+    --border: rgba(0,0,0,.08);
+    --text-muted: #475569;
+}
+
+/* =========================
+FOOTER BASE
+========================= */
+
+.app-footer{
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:14px 22px;
+
+    background: var(--footer-bg);
+    backdrop-filter: blur(14px);
+
+    border-top: 1px solid var(--border);
+
+    color: var(--text-muted);
+
+    font-size:13px;
+
+    width:100%;
+}
+
+/* LEFT */
+.footer-left{
+    font-weight:500;
+}
+
+/* RIGHT */
+.footer-right{
+    opacity:.85;
+}
+
+/* =========================
+RESPONSIVE
+========================= */
+
+@media(max-width:768px){
+
+    .app-footer{
+
+        flex-direction:column;
+        gap:6px;
+
+        text-align:center;
+    }
+}
+
+</style>

@@ -11,39 +11,31 @@ use yii\web\IdentityInterface;
 use yii\base\NotSupportedException;
 
 /**
- * User Model (ERP READY)
- *
- * @property int $id
- * @property string $username
- * @property string $email
- * @property string $password_hash
- * @property string $auth_key
- * @property string|null $password_reset_token
- * @property string|null $verification_token
- * @property string $role
- * @property int $status
- * @property int|null $branch_id
- * @property int $created_at
- * @property int $updated_at
+ * USER MODEL (CLEAN + RBAC READY + SIGNUP SAFE)
  */
 class User extends ActiveRecord implements IdentityInterface
 {
-    //virtual attributes(not db fields)
+    /**
+     * =====================
+     * VIRTUAL ATTRIBUTE
+     * =====================
+     */
     public $password;
 
-
-
-    
-    // =====================
-    // STATUS CONSTANTS
-    // =====================
+    /**
+     * =====================
+     * STATUS CONSTANTS
+     * =====================
+     */
     public const STATUS_DELETED = 0;
     public const STATUS_INACTIVE = 9;
     public const STATUS_ACTIVE = 10;
 
-    // =====================
-    // ROLE CONSTANTS
-    // =====================
+    /**
+     * =====================
+     * ROLE CONSTANTS
+     * =====================
+     */
     public const ROLE_OWNER = 'owner';
     public const ROLE_SELLER = 'seller';
 
@@ -66,7 +58,9 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * VALIDATION RULES
+     * =====================
+     * VALIDATION RULES (FIXED)
+     * =====================
      */
     public function rules(): array
     {
@@ -78,6 +72,12 @@ class User extends ActiveRecord implements IdentityInterface
 
             ['email', 'email'],
 
+            ['username', 'string', 'min' => 3, 'max' => 50],
+
+            // password optional here (handled in SignupForm)
+            ['password', 'safe'],
+
+            // status default
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
 
             [
@@ -90,7 +90,8 @@ class User extends ActiveRecord implements IdentityInterface
                 ]
             ],
 
-            ['role', 'required'],
+            // role default FIX (IMPORTANT)
+            ['role', 'default', 'value' => self::ROLE_OWNER],
 
             [
                 'role',
@@ -101,28 +102,35 @@ class User extends ActiveRecord implements IdentityInterface
                 ]
             ],
 
-            ['role', 'default', 'value' => self::ROLE_SELLER],
-
             ['branch_id', 'integer'],
         ];
     }
 
-    // =====================
-    // RELATIONS
-    // =====================
-
     /**
-     * Seller belongs to one branch
+     * =====================
+     * 
+     * RELATIONS
+     * =====================
      */
+
+
     public function getBranch()
     {
         return $this->hasOne(Branch::class, ['id' => 'branch_id']);
+
+    }
+    //business via branch
+    public function getBusiness()
+    {
+        return $this->hasOne(Business::class, ['id' => 'business_id']
+        )->via('branch');
     }
 
-    // =====================
-    // ROLE HELPERS
-    // =====================
-
+    /**
+     * =====================
+     * ROLE HELPERS
+     * =====================
+     */
     public function isOwner(): bool
     {
         return $this->role === self::ROLE_OWNER;
@@ -142,10 +150,11 @@ class User extends ActiveRecord implements IdentityInterface
         };
     }
 
-    // =====================
-    // IDENTITY METHODS
-    // =====================
-
+    /**
+     * =====================
+     * IDENTITY METHODS
+     * =====================
+     */
     public static function findIdentity($id): ?User
     {
         return static::findOne([
@@ -167,10 +176,11 @@ class User extends ActiveRecord implements IdentityInterface
         ]);
     }
 
-    // =====================
-    // PASSWORD HANDLING
-    // =====================
-
+    /**
+     * =====================
+     * PASSWORD HANDLING
+     * =====================
+     */
     public function validatePassword(string $password): bool
     {
         return Yii::$app->security->validatePassword(
@@ -191,10 +201,11 @@ class User extends ActiveRecord implements IdentityInterface
             Yii::$app->security->generateRandomString();
     }
 
-    // =====================
-    // TOKENS
-    // =====================
-
+    /**
+     * =====================
+     * TOKENS
+     * =====================
+     */
     public function generatePasswordResetToken(): void
     {
         $this->password_reset_token =
@@ -212,10 +223,11 @@ class User extends ActiveRecord implements IdentityInterface
         $this->password_reset_token = null;
     }
 
-    // =====================
-    // AUTH INTERFACE
-    // =====================
-
+    /**
+     * =====================
+     * IDENTITY INTERFACE
+     * =====================
+     */
     public function getId(): int
     {
         return (int) $this->getPrimaryKey();

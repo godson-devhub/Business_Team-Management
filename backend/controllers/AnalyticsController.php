@@ -4,11 +4,13 @@ namespace backend\controllers;
 
 use Yii;
 use yii\web\Controller;
+use yii\web\Response;
+use yii\web\ForbiddenHttpException;
 use yii\filters\AccessControl;
 
-use common\models\Sale;
-use common\models\Purchase;
-use common\models\Product;
+use common\models\Branch;
+use common\models\Business;
+use common\models\Analytics;
 
 class AnalyticsController extends Controller
 {
@@ -21,6 +23,10 @@ class AnalyticsController extends Controller
                     [
                         'allow' => true,
                         'roles' => ['@'],
+                        'matchCallback' => function () {
+                            return Yii::$app->user->identity
+                                && Yii::$app->user->identity->role === 'owner';
+                        }
                     ],
                 ],
             ],
@@ -31,113 +37,88 @@ class AnalyticsController extends Controller
     {
         $user = Yii::$app->user->identity;
 
-        // =========================
-        // BRANCH SAFETY
-        // =========================
-        $branchId = $user->branch_id ?? null;
-
-        if (!$branchId) {
-            throw new \yii\web\BadRequestHttpException("Branch not assigned to this user.");
+        if (!$user) {
+            throw new ForbiddenHttpException("Unauthorized");
         }
 
-        // =========================
-        // SALES DATA
-        // =========================
-        $totalSales = Sale::find()
-            ->where(['branch_id' => $branchId])
-            ->sum('total_amount') ?? 0;
-
-        $totalProfit = Sale::find()
-            ->where(['branch_id' => $branchId])
-            ->sum('total_profit') ?? 0;
-
-        // =========================
-        // PURCHASES DATA
-        // =========================
-        $totalPurchases = Purchase::find()
-            ->where(['branch_id' => $branchId])
-            ->sum('total_amount') ?? 0;
-
-        // =========================
-        // PRODUCTS DATA
-        // =========================
-        $totalProducts = Product::find()
-            ->where(['branch_id' => $branchId])
-            ->count();
-
-        $lowStock = Product::find()
-            ->where(['branch_id' => $branchId])
-            ->andWhere(['<=', 'stock_quantity', 5])
-            ->count();
-
-        // =========================
-        // TOP PRODUCTS
-        // =========================
-        $topProducts = Product::find()
-            ->where(['branch_id' => $branchId])
-            ->orderBy(['stock_quantity' => SORT_ASC])
-            ->limit(5)
+        // =========================================
+        // 🔥 FIX 1: GET ALL BUSINESSES (NOT ONE)
+        // =========================================
+        $businesses = Business::find()
+            ->where(['owner_id' => $user->id])
             ->all();
 
-        // =========================
-        // 🚨 STOCK ALERT DATA
-        // =========================
+        if (empty($businesses)) {
+            throw new ForbiddenHttpException("No business found");
+        }
 
-        $lowStockProducts = Product::find()
-            ->where(['branch_id' => $branchId])
-            ->andWhere(['<=', 'stock_quantity', 5])
+        // extract business IDs
+        $businessIds = array_map(fn($b) => $b->id, $businesses);
+
+        // =========================================
+        // 🔥 FIX 2: GET ALL BRANCHES (MULTI BUSINESS)
+        // =========================================
+        $branches = Branch::find()
+            ->where(['business_id' => $businessIds])
+            ->orderBy(['name' => SORT_ASC])
             ->all();
 
-        $outStockProducts = Product::find()
-            ->where(['branch_id' => $branchId])
-            ->andWhere(['stock_quantity' => 0])
-            ->all();
+        if (empty($branches)) {
+            throw new ForbiddenHttpException("No branches found for your business");
+        }
 
-        // =========================
-        // 📊 CHART DATA (SALES)
-        // =========================
-        $salesData = Sale::find()
-            ->select(["DATE(created_at) as date", "SUM(total_amount) as total"])
-            ->where(['branch_id' => $branchId])
-            ->groupBy(["DATE(created_at)"])
-            ->orderBy(['date' => SORT_ASC])
-            ->asArray()
-            ->all();
+        // =========================================
+        // BRANCH SELECTION SAFE
+        // =========================================
+        $branchId = Yii::$app->request->get('branch_id');
 
-        // =========================
-        // 📊 CHART DATA (PROFIT)
-        // =========================
-        $profitData = Sale::find()
-            ->select(["DATE(created_at) as date", "SUM(total_profit) as total"])
-            ->where(['branch_id' => $branchId])
-            ->groupBy(["DATE(created_at)"])
-            ->orderBy(['date' => SORT_ASC])
-            ->asArray()
-            ->all();
+        if (!$branchId && isset($branches[0])) {
+            $branchId = $branches[0]->id;
+        }
 
-        // =========================
-        // RETURN VIEW
-        // =========================
+        $date  = Yii::$app->request->get('date', date('Y-m-d'));
+        $month = Yii::$app->request->get('month', date('Y-m'));
+
+        // =========================================
+        // AJAX RESPONSE
+        // =========================================
+        if (Yii::$app->request->get('ajax') == 1) {
+
+            Yii::$app->response->format = Response::FORMAT_JSON;
+
+            if (!$branchId) {
+                return ['error' => 'Branch not selected'];
+            }
+
+            return [
+                'dailySales' => Analytics::getDailySales($branchId, $date),
+                'dailyProfit' => Analytics::getDailyProfit($branchId, $date),
+
+                'monthlySales' => Analytics::getMonthlySales($branchId, $month),
+                'monthlyProfit' => Analytics::getMonthlyProfit($branchId, $month),
+
+                'totalProducts' => Analytics::getTotalProducts($branchId),
+                'stockValue' => Analytics::getStockValue($branchId),
+
+                'labels' => array_column(
+                    Analytics::getWeeklySalesChart($branchId),
+                    'label'
+                ),
+                'values' => array_column(
+                    Analytics::getWeeklySalesChart($branchId),
+                    'value'
+                ),
+            ];
+        }
+
+        // =========================================
+        // VIEW
+        // =========================================
         return $this->render('index', [
-
-            // FINANCIALS
-            'totalSales' => $totalSales,
-            'totalProfit' => $totalProfit,
-            'totalPurchases' => $totalPurchases,
-
-            // PRODUCTS
-            'totalProducts' => $totalProducts,
-            'lowStock' => $lowStock,
-            'topProducts' => $topProducts,
-
-            // STOCK ALERTS
-            'lowStockProducts' => $lowStockProducts ?? [],
-            'outStockProducts' => $outStockProducts ?? [],
-
-            // CHARTS
-            'salesData' => $salesData,
-            'profitData' => $profitData,
-
+            'branches' => $branches,
+            'branchId' => $branchId,
+            'selectedDate' => $date,
+            'selectedMonth' => $month,
         ]);
     }
 }

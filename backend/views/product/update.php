@@ -1,461 +1,255 @@
 <?php
-/**
- * @var \common\models\Product $model
- * @var array $branches
- */
 
 use yii\helpers\Html;
+use yii\widgets\ActiveForm;
+
+/** @var $model common\models\Product */
 
 $this->title = 'Update Product';
-
 ?>
 
-<style>
-
-    body{
-
-        margin:0;
-        padding:0;
-
-        background:
-        linear-gradient(
-        135deg,
-        #020617,
-        #0f172a,
-        #1e1b4b
-        );
-
-        font-family:'Segoe UI',sans-serif;
-
-        overflow-x:hidden;
-
-        color:white;
-    }
-
-    /* ANIMATED BACKGROUND */
-
-    .bg-wrapper{
-
-        position:fixed;
-
-        width:100%;
-        height:100%;
-
-        overflow:hidden;
-
-        z-index:-1;
-    }
-
-    .glow{
-
-        position:absolute;
-
-        border-radius:50%;
-
-        filter:blur(100px);
-
-        opacity:0.35;
-
-        animation:moveGlow 10s infinite alternate ease-in-out;
-    }
-
-    .glow1{
-
-        width:350px;
-        height:350px;
-
-        background:#38bdf8;
-
-        top:-120px;
-        left:-100px;
-    }
-
-    .glow2{
-
-        width:300px;
-        height:300px;
-
-        background:#8b5cf6;
-
-        bottom:-80px;
-        right:-80px;
-    }
-
-    @keyframes moveGlow{
-
-        0%{
-            transform:translate(0,0);
-        }
-
-        100%{
-            transform:translate(50px,30px);
-        }
-    }
-
-    /* PAGE */
-
-    .page-container{
-
-        min-height:100vh;
-
-        display:flex;
-
-        justify-content:center;
-
-        align-items:center;
-
-        padding:40px;
-    }
-
-    /* GLASS CARD */
-
-    .glass-card{
-
-        width:100%;
-        max-width:720px;
-
-        background:rgba(255,255,255,0.08);
-
-        backdrop-filter:blur(18px);
-
-        border:1px solid rgba(255,255,255,0.12);
-
-        border-radius:32px;
-
-        padding:45px;
-
-        position:relative;
-
-        overflow:hidden;
-
-        box-shadow:
-        0 15px 40px rgba(0,0,0,0.4);
-
-        animation:fadeUp 1s ease;
-    }
-
-    @keyframes fadeUp{
-
-        from{
-            opacity:0;
-            transform:translateY(50px);
-        }
-
-        to{
-            opacity:1;
-            transform:translateY(0);
-        }
-    }
-
-    .glass-card::before{
-
-        content:'';
-
-        position:absolute;
-
-        top:-90px;
-        right:-90px;
-
-        width:240px;
-        height:240px;
-
-        border-radius:50%;
-
-        background:
-        rgba(56,189,248,0.15);
-    }
-
-    /* HEADER */
-
-    .status-badge{
-
-        display:inline-block;
-
-        padding:8px 18px;
-
-        border-radius:50px;
-
-        background:
-        rgba(34,197,94,0.15);
-
-        border:1px solid rgba(34,197,94,0.35);
-
-        color:#86efac;
-
-        font-size:13px;
-
-        margin-bottom:20px;
-
-        animation:pulse 1.5s infinite;
-    }
-
-    @keyframes pulse{
-
-        0%{
-            transform:scale(1);
-        }
-
-        50%{
-            transform:scale(1.05);
-        }
-
-        100%{
-            transform:scale(1);
-        }
-    }
-
-    .title{
-
-        font-size:38px;
-
-        font-weight:bold;
-
-        margin-bottom:10px;
-
-        background:
-        linear-gradient(
-        to right,
-        #38bdf8,
-        #818cf8,
-        #c084fc
-        );
-
-        -webkit-background-clip:text;
-
-        -webkit-text-fill-color:transparent;
-    }
-
-    .subtitle{
-
-        color:#cbd5e1;
-
-        margin-bottom:35px;
-
-        font-size:15px;
-    }
-
-    /* FORM */
-
-    .form-group{
-        margin-bottom:25px;
-    }
-
-    .form-label{
-
-        display:block;
-
-        margin-bottom:10px;
-
-        color:#e2e8f0;
-
-        font-size:14px;
-    }
-
-    .form-input{
-
-        width:100%;
-
-        padding:18px;
-
-        border:none;
-
-        border-radius:18px;
-
-        background:
-        rgba(255,255,255,0.07);
-
-        color:white;
-
-        font-size:15px;
-
-        outline:none;
-
-        transition:0.35s ease;
-
-        box-sizing:border-box;
-    }
-
-    .form-input::placeholder{
-        color:#94a3b8;
-    }
-
-    .form-input:focus{
-
-        transform:scale(1.02);
-
-        background:
-        rgba(255,255,255,0.12);
-
-        box-shadow:
-        0 0 20px rgba(56,189,248,0.35);
-    }
-
-    /* BUTTON */
-
-    .update-btn{
-
-        width:100%;
-
-        padding:18px;
-
-        border:none;
-
-        border-radius:18px;
-
-        background:
-        linear-gradient(
-        135deg,
-        #38bdf8,
-        #6366f1,
-        #8b5cf6
-        );
-
-        color:white;
-
-        font-size:16px;
-
-        font-weight:bold;
-
-        cursor:pointer;
-
-        transition:0.35s ease;
-    }
-
-    .update-btn:hover{
-
-        transform:
-        translateY(-5px)
-        scale(1.02);
-
-        box-shadow:
-        0 15px 35px rgba(99,102,241,0.45);
-    }
-
-    /* CARTOON */
-
-    .cartoon{
-
-        position:absolute;
-
-        bottom:-5px;
-        right:15px;
-
-        animation:floaty 3s ease-in-out infinite;
-    }
-
-    .cartoon img{
-        width:130px;
-    }
-
-    @keyframes floaty{
-
-        0%{
-            transform:translateY(0px);
-        }
-
-        50%{
-            transform:translateY(-14px);
-        }
-
-        100%{
-            transform:translateY(0px);
-        }
-    }
-
-</style>
-
-<div class="bg-wrapper">
-
-    <div class="glow glow1"></div>
-
-    <div class="glow glow2"></div>
-
+<!-- =========================
+BACKGROUND (SAME AS CREATE)
+========================= -->
+<div class="background-blobs">
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
 </div>
 
-<div class="page-container">
+<!-- =========================
+PAGE WRAPPER
+========================= -->
+<div class="page-wrapper">
 
     <div class="glass-card">
 
-        <div class="status-badge">
-            ● LIVE PRODUCT EDITOR
+        <div class="title">✏️ Update Product</div>
+        <div class="subtitle">Edit product details in your inventory</div>
+
+        <?php $form = ActiveForm::begin([
+            'id' => 'product-update-form',
+        ]); ?>
+
+        <!-- PRODUCT NAME -->
+        <div class="form-group">
+            <?= $form->field($model, 'name')
+                ->textInput([
+                    'class' => 'input',
+                    'placeholder' => 'Product name'
+                ])
+                ->label('Product Name') ?>
         </div>
 
-        <div class="title">
-            ✨ Update Product
+        <!-- BUYING PRICE -->
+        <div class="form-group">
+            <?= $form->field($model, 'buying_price')
+                ->textInput([
+                    'type' => 'number',
+                    'step' => '0.01',
+                    'class' => 'input'
+                ])
+                ->label('Buying Price') ?>
         </div>
 
-        <div class="subtitle">
-            Edit your products beautifully with interactive modern UI/UX.
+        <!-- SELLING PRICE -->
+        <div class="form-group">
+            <?= $form->field($model, 'selling_price')
+                ->textInput([
+                    'type' => 'number',
+                    'step' => '0.01',
+                    'class' => 'input'
+                ])
+                ->label('Selling Price') ?>
         </div>
 
-        <form method="post">
-
-            <div class="form-group">
-
-                <label class="form-label">
-                    Product Name
-                </label>
-
-                <input
-                    type="text"
-                    name="Product[name]"
-                    class="form-input"
-                    value="<?= Html::encode($model->name) ?>"
-                    placeholder="Enter product name..."
-                >
-
-            </div>
-
-            <div class="form-group">
-
-                <label class="form-label">
-                    Buying Price
-                </label>
-
-                <input
-                    type="number"
-                    step="0.01"
-                    name="Product[buying_price]"
-                    class="form-input"
-                    value="<?= $model->buying_price ?>"
-                    placeholder="Buying price..."
-                >
-
-            </div>
-
-            <div class="form-group">
-
-                <label class="form-label">
-                    Selling Price
-                </label>
-
-                <input
-                    type="number"
-                    step="0.01"
-                    name="Product[selling_price]"
-                    class="form-input"
-                    value="<?= $model->selling_price ?>"
-                    placeholder="Selling price..."
-                >
-
-            </div>
-
-            <button type="submit" class="update-btn">
-
-                🚀 Update Product
-
-            </button>
-
-        </form>
-
-        <div class="cartoon">
-
-            <img
-            src="https://cdn-icons-png.flaticon.com/512/679/679922.png"
-            >
-
+        <!-- STOCK -->
+        <div class="form-group">
+            <?= $form->field($model, 'stock_quantity')
+                ->textInput([
+                    'type' => 'number',
+                    'min' => 0,
+                    'class' => 'input'
+                ])
+                ->label('Stock Quantity') ?>
         </div>
+
+        <!-- MIN STOCK ALERT -->
+        <div class="form-group">
+            <?= $form->field($model, 'min_stock_alert')
+                ->textInput([
+                    'type' => 'number',
+                    'min' => 0,
+                    'class' => 'input'
+                ])
+                ->label('Low Stock Alert') ?>
+        </div>
+
+        <!-- SKU -->
+        <div class="form-group">
+            <?= $form->field($model, 'sku')
+                ->textInput([
+                    'class' => 'input'
+                ])
+                ->label('SKU') ?>
+        </div>
+
+        <!-- STATUS -->
+        <div class="form-group">
+            <?= $form->field($model, 'status')
+                ->dropDownList([
+                    1 => 'Active',
+                    0 => 'Inactive'
+                ], [
+                    'class' => 'input'
+                ])
+                ->label('Status') ?>
+        </div>
+
+        <!-- BUTTON -->
+        <div class="form-group">
+            <?= Html::submitButton('💾 Update Product', [
+                'class' => 'btn'
+            ]) ?>
+        </div>
+
+        <?php ActiveForm::end(); ?>
 
     </div>
 
 </div>
+
+<!-- =========================
+STYLE (SAME AS CREATE FOR CONSISTENCY)
+========================= -->
+<style>
+
+body{
+    margin:0;
+    padding:0;
+    font-family:'Segoe UI',sans-serif;
+    background:linear-gradient(135deg,#020617,#0f172a,#1e293b);
+    color:white;
+}
+
+/* BACKGROUND BLOBS */
+.background-blobs{
+    position:fixed;
+    width:100%;
+    height:100%;
+    z-index:-1;
+    overflow:hidden;
+}
+
+.blob{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(90px);
+    opacity:0.35;
+}
+
+.blob1{
+    width:320px;
+    height:320px;
+    background:#38bdf8;
+    top:-60px;
+    left:-60px;
+}
+
+.blob2{
+    width:280px;
+    height:280px;
+    background:#8b5cf6;
+    bottom:-60px;
+    right:-60px;
+}
+
+/* PAGE */
+.page-wrapper{
+    display:flex;
+    justify-content:center;
+    padding:40px;
+}
+
+/* GLASS CARD */
+.glass-card{
+    width:100%;
+    max-width:600px;
+    background:rgba(255,255,255,0.07);
+    border:1px solid rgba(255,255,255,0.15);
+    backdrop-filter:blur(18px);
+    border-radius:25px;
+    padding:35px;
+    box-shadow:0 10px 40px rgba(0,0,0,0.4);
+}
+
+/* TITLE */
+.title{
+    font-size:30px;
+    font-weight:bold;
+    background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+.subtitle{
+    color:#94a3b8;
+    margin-bottom:25px;
+    font-size:14px;
+}
+
+/* FORM */
+.form-group{
+    margin-bottom:18px;
+}
+
+/* INPUT */
+.input,
+input,
+select{
+    width:100%;
+    padding:14px;
+    border-radius:14px;
+    border:none;
+    outline:none;
+    background:rgba(255,255,255,0.08);
+    color:white;
+    font-size:14px;
+    transition:0.3s;
+}
+
+.input:focus,
+input:focus,
+select:focus{
+    background:rgba(255,255,255,0.15);
+    transform:scale(1.02);
+    box-shadow:0 0 15px rgba(56,189,248,0.3);
+}
+
+/* LABEL */
+label{
+    color:#cbd5e1;
+    font-size:13px;
+    margin-bottom:6px;
+    display:block;
+}
+
+/* BUTTON */
+.btn{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:14px;
+    background:linear-gradient(135deg,#f59e0b,#6366f1,#8b5cf6);
+    color:white;
+    font-size:15px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.btn:hover{
+    transform:translateY(-4px);
+    box-shadow:0 12px 30px rgba(99,102,241,0.4);
+}
+
+</style>

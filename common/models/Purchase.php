@@ -4,21 +4,9 @@ declare(strict_types=1);
 
 namespace common\models;
 
-use Yii;
 use yii\db\ActiveRecord;
 use yii\behaviors\TimestampBehavior;
 
-/**
- * Purchase (Stock IN)
- *
- * @property int $id
- * @property int $branch_id
- * @property int $created_by (seller/user)
- * @property float $total_amount
- * @property string|null $note
- * @property int $created_at
- * @property int $updated_at
- */
 class Purchase extends ActiveRecord
 {
     public static function tableName(): string
@@ -28,26 +16,97 @@ class Purchase extends ActiveRecord
 
     public function behaviors(): array
     {
-        return [TimestampBehavior::class];
+        return [
+            [
+                'class' => TimestampBehavior::class,
+                'createdAtAttribute' => 'created_at',
+                'updatedAtAttribute' => false,
+            ],
+        ];
     }
 
     public function rules(): array
     {
         return [
-            [['branch_id', 'created_by'], 'required'],
-            [['branch_id', 'created_by'], 'integer'],
-            [['total_amount'], 'number'],
-            [['note'], 'string'],
+
+            [
+                [
+                    'business_id',
+                    'branch_id',
+                    'user_id'
+                ],
+                'required'
+            ],
+
+            [
+                [
+                    'business_id',
+                    'branch_id',
+                    'user_id',
+                    'created_at'
+                ],
+                'integer'
+            ],
+
+            [
+                'total_amount',
+                'number'
+            ],
+
+            [
+                'supplier_name',
+                'string',
+                'max' => 255
+            ],
+
+            [
+                'supplier_contact',
+                'string',
+                'max' => 20
+            ],
+
+            [
+                'status',
+                'in',
+                'range' => [
+                    'pending',
+                    'completed',
+                    'received',
+                    'cancelled'
+                ]
+            ],
         ];
     }
 
     public function getItems()
     {
-        return $this->hasMany(PurchaseItem::class, ['purchase_id' => 'id']);
+        return $this->hasMany(
+            PurchaseItem::class,
+            ['purchase_id' => 'id']
+        );
     }
 
     public function getBranch()
     {
-        return $this->hasOne(Branch::class, ['id' => 'branch_id']);
+        return $this->hasOne(
+            Branch::class,
+            ['id' => 'branch_id']
+        );
+    }
+
+    public function getUser()
+    {
+        return $this->hasOne(
+            User::class,
+            ['id' => 'user_id']
+        );
+    }
+
+    public function getBusiness()
+    {
+        return $this->hasOne(
+            Business::class,
+            ['id' => 'business_id']
+        );
     }
 }

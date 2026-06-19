@@ -110,6 +110,14 @@ class Branch extends ActiveRecord
         return $this->hasMany(Purchase::class, ['branch_id' => 'id']);
     }
 
+    //active sellers
+    public function getActiveSellers()
+    {
+        return $this->hasMany(User::class, ['branch_id' => 'id'])
+            ->andWhere(['status' => User::STATUS_ACTIVE])
+            ->andWhere(['role' => User::ROLE_SELLER]);
+    }
+
     // =========================
     // HELPERS (ANALYTICS READY)
     // =========================

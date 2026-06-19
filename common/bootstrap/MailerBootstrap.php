@@ -10,20 +10,23 @@ use yii\base\BootstrapInterface;
 use yii\mail\MailerInterface;
 
 /**
- * Registers the application mailer component as the DI container singleton for {@see MailerInterface}.
- *
- * Codeception replaces `components.mailer` with its own TestMailer to capture sent emails.
- *
- * Since the DI container is configured before the mailer mock, this bootstrap ensures the DI singleton resolves to the
- * same mailer instance used by the application.
+ * Safe Mailer Bootstrap
+ * ONLY binds mailer after application components are ready
  */
 final class MailerBootstrap implements BootstrapInterface
 {
-    /**
-     * @param Application $app Application instance.
-     */
     public function bootstrap($app): void
     {
-        Yii::$container->setSingleton(MailerInterface::class, $app->mailer);
+        // 🚨 SAFETY CHECK (IMPORTANT)
+        if (!$app->has('mailer')) {
+            return;
+        }
+
+        $mailer = $app->mailer;
+
+        // ensure mailer is valid before binding
+        if ($mailer instanceof MailerInterface) {
+            Yii::$container->setSingleton(MailerInterface::class, $mailer);
+        }
     }
 }

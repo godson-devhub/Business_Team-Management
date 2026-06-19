@@ -4,40 +4,32 @@ declare(strict_types=1);
 
 namespace backend\controllers;
 
-use common\models\LoginForm;
 use Yii;
+use yii\web\Controller;
+use yii\web\Response;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
-use yii\web\Controller;
 use yii\web\ErrorAction;
-use yii\web\Response;
 
-/**
- * Site Controller
- */
+use common\models\LoginForm;
+use common\models\SignupForm;
 
 class SiteController extends Controller
 {
-    /**
-     * Behaviors
-     */
     public function behaviors(): array
     {
         return [
-
             'access' => [
-
                 'class' => AccessControl::class,
-
                 'rules' => [
 
-                    // PUBLIC PAGES
+                    // PUBLIC ROUTES (LOGIN + SIGNUP + ERROR)
                     [
-                        'actions' => ['login', 'error'],
+                        'actions' => ['login', 'signup', 'error'],
                         'allow' => true,
                     ],
 
-                    // AUTHENTICATED USERS
+                    // AUTH USERS ONLY
                     [
                         'actions' => ['logout', 'index'],
                         'allow' => true,
@@ -47,112 +39,112 @@ class SiteController extends Controller
             ],
 
             'verbs' => [
-
                 'class' => VerbFilter::class,
-
                 'actions' => [
-
-                    'logout' => ['post'],
+                    'logout' => ['POST'],
                 ],
             ],
         ];
     }
 
-    /**
-     * Error actions
-     */
     public function actions(): array
     {
         return [
-
             'error' => [
                 'class' => ErrorAction::class,
             ],
         ];
     }
 
-    /**
-     * Homepage
-     */
-    public function actionIndex(): string|Response
+    public function actionIndex(): Response|string
     {
-        // USER MUST LOGIN
         if (Yii::$app->user->isGuest) {
-
             return $this->redirect(['site/login']);
         }
 
         $user = Yii::$app->user->identity;
 
-        // OWNER DASHBOARD
-        if ($user->role === 'owner') {
-
-            return $this->redirect(['/owner-dashboard/index']);
-        }
-
-        // SELLER DASHBOARD
-        if ($user->role === 'seller') {
-
-            return $this->redirect(['/seller/dashboard']);
-        }
-
-        return $this->render('index');
+        return match ($user->role) {
+            'owner'  => $this->redirect(['/owner-dashboard/index']),
+            'seller' => $this->redirect(['/seller/index']),
+            default  => $this->goHome(),
+        };
     }
 
-    /**
-     * Login action
-     */
-    public function actionLogin(): string|Response
+    public function actionLogin(): Response|string
     {
-        // ALREADY LOGGED IN
         if (!Yii::$app->user->isGuest) {
-
             return $this->goHome();
         }
 
-        // LOGIN LAYOUT
-        $this->layout = 'blank';
+        $this->layout = 'auth';
 
         $model = new LoginForm();
 
-        // LOGIN PROCESS
-        if (
-            $model->load(Yii::$app->request->post())
-            && $model->login()
-        ) {
+        if ($model->load(Yii::$app->request->post()) && $model->login()) {
 
             $user = Yii::$app->user->identity;
 
-            // OWNER LOGIN
-            if ($user->role === 'owner') {
+            Yii::$app->session->setFlash('success', 'Login successful');
 
-                return $this->redirect([
-                    '/owner-dashboard/index',
-                ]);
-            }
-
-            // SELLER LOGIN
-            if ($user->role === 'seller') {
-
-                return $this->redirect([
-                    '/seller/dashboard',
-                ]);
-            }
-
-            return $this->goHome();
+            return match ($user->role) {
+                'owner'  => $this->redirect(['/owner-dashboard/index']),
+                'seller' => $this->redirect(['/seller/index']),
+                default  => $this->goHome(),
+            };
         }
 
-        $model->password = '';
-
         return $this->render('login', [
-
             'model' => $model,
         ]);
     }
 
     /**
-     * Logout action
+     * =========================
+     * PUBLIC SIGNUP (FIXED)
+     * =========================
      */
+    public function actionSignup(): Response|string
+    {
+        $this->layout = 'auth';
+
+        $model = new SignupForm();
+
+        if ($model->load(Yii::$app->request->post())) {
+
+            $user = $model->signup();
+
+            if ($user) {
+
+
+
+                Yii::$app->user->login($user);
+
+                Yii::$app->session->setFlash(
+                    'success',
+                    'Account created successfully  - welcome aboard!'
+                );
+
+
+
+                return match ($user->role) {
+                    'owner' => $this->redirect(['/owner-dashboard/index']),
+                    'seller' => $this->redirect(['/seller/index']),
+                    default => $this->goHome(),
+                };
+            }
+
+            Yii::$app->session->setFlash(
+                'error',
+                'Signup failed. Please try again.'
+            );
+        }
+
+        return $this->render('signup', [
+            'model' => $model,
+        ]);
+    }
+
     public function actionLogout(): Response
     {
         Yii::$app->user->logout();

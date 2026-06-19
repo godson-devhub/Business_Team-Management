@@ -22,24 +22,15 @@ class OwnerDashboardController extends Controller
     public function behaviors(): array
     {
         return [
-
             'access' => [
-
                 'class' => AccessControl::class,
-
                 'rules' => [
-
                     [
                         'allow' => true,
-
                         'roles' => ['@'],
-
                         'matchCallback' => function () {
-
-                            return Yii::$app
-                                ->user
-                                ->identity
-                                ->role === 'owner';
+                            return Yii::$app->user->identity
+                                && Yii::$app->user->identity->role === 'owner';
                         },
                     ],
                 ],
@@ -48,22 +39,17 @@ class OwnerDashboardController extends Controller
     }
 
     /**
-     * EXTRA SECURITY
+     * EXTRA SECURITY LAYER
      */
     public function beforeAction($action)
     {
-        // GUEST BLOCK
         if (Yii::$app->user->isGuest) {
-
             return $this->redirect(['/site/login']);
         }
 
-        // OWNER ONLY
-        if (Yii::$app->user->identity->role !== 'owner') {
-
-            throw new ForbiddenHttpException(
-                'Access denied.'
-            );
+        if (!Yii::$app->user->identity
+            || Yii::$app->user->identity->role !== 'owner') {
+            throw new ForbiddenHttpException('Access denied. Owner only area.');
         }
 
         return parent::beforeAction($action);
@@ -76,134 +62,95 @@ class OwnerDashboardController extends Controller
     {
         $ownerId = Yii::$app->user->id;
 
-        /**
-         * ============================
-         * OWNER BUSINESSES
-         * ============================
-         */
-
+        /* =========================
+         * BUSINESSES
+         * ========================= */
         $businesses = Business::find()
             ->where(['owner_id' => $ownerId])
             ->all();
-
-        /**
-         * ============================
-         * BUSINESS IDS
-         * ============================
-         */
 
         $businessIds = Business::find()
             ->select('id')
             ->where(['owner_id' => $ownerId])
             ->column();
 
-        /**
-         * ============================
-         * OWNER BRANCHES
-         * ============================
-         */
+        if (empty($businessIds)) {
+            // prevent SQL "IN ()" errors
+            $businessIds = [0];
+        }
 
+        /* =========================
+         * BRANCHES
+         * ========================= */
         $branches = Branch::find()
             ->where(['business_id' => $businessIds])
             ->all();
-
-        /**
-         * ============================
-         * BRANCH IDS
-         * ============================
-         */
 
         $branchIds = Branch::find()
             ->select('id')
             ->where(['business_id' => $businessIds])
             ->column();
 
-        /**
-         * ============================
-         * TOTAL SALES
-         * ============================
-         */
+        if (empty($branchIds)) {
+            $branchIds = [0];
+        }
 
-        $totalSales = Sale::find()
+        /* =========================
+         * SALES
+         * ========================= */
+        $totalSales = (float) Sale::find()
             ->where(['branch_id' => $branchIds])
             ->sum('total_amount');
 
-        /**
-         * ============================
-         * TOTAL PROFIT
-         * ============================
-         */
-
-        $totalProfit = Sale::find()
+        $totalProfit = (float) Sale::find()
             ->where(['branch_id' => $branchIds])
             ->sum('total_profit');
 
-        /**
-         * ============================
-         * TOTAL PURCHASES
-         * ============================
-         */
-
-        $totalPurchases = Purchase::find()
+        /* =========================
+         * PURCHASES
+         * ========================= */
+        $totalPurchases = (float) Purchase::find()
             ->where(['branch_id' => $branchIds])
             ->sum('total_amount');
 
-        /**
-         * ============================
-         * TOTAL PRODUCTS
-         * ============================
-         */
-
-        $totalProducts = Product::find()
+        /* =========================
+         * PRODUCTS
+         * ========================= */
+        $totalProducts = (int) Product::find()
             ->where(['branch_id' => $branchIds])
             ->count();
 
-        /**
-         * ============================
-         * LOW STOCK PRODUCTS
-         * ============================
-         */
-
-        $lowStock = Product::find()
+        $lowStock = (int) Product::find()
             ->where(['branch_id' => $branchIds])
             ->andWhere(['<=', 'stock_quantity', 5])
             ->count();
 
-        /**
-         * ============================
-         * TOTAL SELLERS
-         * ============================
-         */
-
-        $totalSellers = User::find()
+        /* =========================
+         * SELLERS
+         * ========================= */
+        $totalSellers = (int) User::find()
             ->where([
                 'role' => 'seller',
                 'branch_id' => $branchIds,
             ])
             ->count();
 
-        /**
-         * ============================
+        /* =========================
          * RECENT PRODUCTS
-         * ============================
-         */
-
+         * ========================= */
         $recentProducts = Product::find()
             ->where(['branch_id' => $branchIds])
             ->orderBy(['id' => SORT_DESC])
             ->limit(5)
             ->all();
 
-        /**
-         * ============================
+        /* =========================
          * SALES CHART DATA
-         * ============================
-         */
-
+         * ========================= */
         $salesData = Sale::find()
             ->select([
-                "DATE(created_at) as date",
-                "SUM(total_amount) as total",
+                "DATE(created_at) AS date",
+                "SUM(total_amount) AS total",
             ])
             ->where(['branch_id' => $branchIds])
             ->groupBy(["DATE(created_at)"])
@@ -211,16 +158,13 @@ class OwnerDashboardController extends Controller
             ->asArray()
             ->all();
 
-        /**
-         * ============================
+        /* =========================
          * PROFIT CHART DATA
-         * ============================
-         */
-
+         * ========================= */
         $profitData = Sale::find()
             ->select([
-                "DATE(created_at) as date",
-                "SUM(total_profit) as total",
+                "DATE(created_at) AS date",
+                "SUM(total_profit) AS total",
             ])
             ->where(['branch_id' => $branchIds])
             ->groupBy(["DATE(created_at)"])
@@ -228,34 +172,24 @@ class OwnerDashboardController extends Controller
             ->asArray()
             ->all();
 
-        /**
-         * ============================
+        /* =========================
          * RENDER VIEW
-         * ============================
-         */
-
+         * ========================= */
         return $this->render('index', [
-
             'businesses' => $businesses,
-
             'branches' => $branches,
 
-            'totalSales' => $totalSales ?? 0,
+            'totalSales' => $totalSales,
+            'totalProfit' => $totalProfit,
+            'totalPurchases' => $totalPurchases,
 
-            'totalProfit' => $totalProfit ?? 0,
+            'totalProducts' => $totalProducts,
+            'lowStock' => $lowStock,
 
-            'totalPurchases' => $totalPurchases ?? 0,
-
-            'totalProducts' => $totalProducts ?? 0,
-
-            'lowStock' => $lowStock ?? 0,
-
-            'totalSellers' => $totalSellers ?? 0,
+            'totalSellers' => $totalSellers,
 
             'recentProducts' => $recentProducts,
-
             'salesData' => $salesData,
-
             'profitData' => $profitData,
         ]);
     }

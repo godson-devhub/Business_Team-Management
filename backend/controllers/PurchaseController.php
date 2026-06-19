@@ -69,7 +69,7 @@ class PurchaseController extends Controller
                 ->request
                 ->post('product_id');
 
-            $quantity = Yii::$app
+            $quantity = (int) Yii::$app
                 ->request
                 ->post('quantity');
 
@@ -87,10 +87,13 @@ class PurchaseController extends Controller
                 // CREATE PURCHASE
                 $purchase = new Purchase();
 
+                $purchase->business_id =
+                    $user->branch->business_id;
+
                 $purchase->branch_id =
                     $user->branch_id;
 
-                $purchase->seller_id =
+                $purchase->user_id =
                     $user->id;
 
                 $purchase->supplier_name =
@@ -99,7 +102,12 @@ class PurchaseController extends Controller
                 $purchase->total_amount =
                     $subtotal;
 
-                $purchase->save();
+                $purchase->status ='completed';
+                
+                $purchase->created_at =
+                    time();
+
+                $purchase->save(false);
 
                 // PURCHASE ITEM
                 $item = new PurchaseItem();
@@ -110,6 +118,13 @@ class PurchaseController extends Controller
                 $item->product_id =
                     $product->id;
 
+                $item->business_id =
+                    $user->branch->business_id; 
+                    
+                $item->branch_id =
+                    $user->branch_id;    
+                
+
                 $item->quantity =
                     $quantity;
 
@@ -118,13 +133,18 @@ class PurchaseController extends Controller
 
                 $item->subtotal =
                     $subtotal;
-
-                $item->save();
+                
+                $item->created_at = time();
+                
+                
+                $item->save(false);
 
                 // INCREASE STOCK
                 StockService::increaseStock(
                     $product->id,
-                    $quantity,
+                    $user->branch_id,
+                    $user->id,
+                    (int)$quantity,
                     'Stock purchased'
                 );
 

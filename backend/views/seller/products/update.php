@@ -1,55 +1,19 @@
 <?php
-/**
- * @var \common\models\Product $model
- */
-
-use yii\helpers\Html;
-use yii\widgets\ActiveForm;
 
 $this->title = 'Update Product';
-
 ?>
 
-<h2>✏️ Update Product</h2>
+<div class="card shadow-sm">
 
-<div class="product-form">
+    <div class="card-header bg-warning">
+        <h3>✏️ Update Product</h3>
+    </div>
 
-    <?php $form = ActiveForm::begin(); ?>
+    <div class="card-body">
 
-    <!-- NAME -->
-    <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
-
-    <!-- SKU -->
-    <?= $form->field($model, 'sku')->textInput(['maxlength' => true]) ?>
-
-    <!-- BUYING PRICE -->
-    <?= $form->field($model, 'buying_price')->input('number', [
-        'step' => '0.01'
-    ]) ?>
-
-    <!-- SELLING PRICE -->
-    <?= $form->field($model, 'selling_price')->input('number', [
-        'step' => '0.01'
-    ]) ?>
-
-    <!-- STOCK -->
-    <?= $form->field($model, 'stock_quantity')->input('number') ?>
-
-    <!-- MIN STOCK ALERT -->
-    <?= $form->field($model, 'min_stock_alert')->input('number') ?>
-
-    <div class="form-group mt-3">
-
-        <?= Html::submitButton('💾 Update Product', [
-            'class' => 'btn btn-primary'
-        ]) ?>
-
-        <?= Html::a('⬅ Back', ['/seller/products'], [
-            'class' => 'btn btn-secondary'
+        <?= $this->render('_form', [
+            'model' => $model
         ]) ?>
 
     </div>
-
-    <?php ActiveForm::end(); ?>
-
 </div>

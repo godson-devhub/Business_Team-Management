@@ -6,221 +6,183 @@ $this->title = 'Dashboard';
 
 $username = Yii::$app->user->identity?->username;
 
+// optional safe fallback values
+$totalSales = $totalSales ?? 0;
+$totalProfit = $totalProfit ?? 0;
+$totalBranches = $totalBranches ?? 0;
+$lowStock = $lowStock ?? 0;
+
 ?>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
-/* ================= GLOBAL ================= */
-
+/* =========================
+GLOBAL
+========================= */
 body{
     margin:0;
-    font-family:'Segoe UI',sans-serif;
-    background:linear-gradient(135deg,#020617,#0f172a,#1e293b);
+    font-family: Inter, sans-serif;
+    background: #0f172a;
     color:white;
-    overflow-x:hidden;
 }
 
-/* ================= SIDEBAR ================= */
-
+/* =========================
+SIDEBAR
+========================= */
 .sidebar{
     position:fixed;
-    top:0;
     left:0;
-    width:240px;
+    top:0;
+    width:230px;
     height:100vh;
-    background:rgba(255,255,255,0.05);
-    backdrop-filter:blur(20px);
-    border-right:1px solid rgba(255,255,255,0.1);
+
+    background:#111827;
+    border-right:1px solid #1f2937;
+
     padding:20px;
 }
 
 .sidebar h2{
-    font-size:20px;
-    margin-bottom:30px;
-    background:linear-gradient(to right,#38bdf8,#a78bfa);
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
+    font-size:18px;
+    margin-bottom:25px;
+    color:#60a5fa;
 }
 
 .sidebar a{
     display:block;
-    padding:12px;
-    margin:8px 0;
+    padding:10px;
+    margin:6px 0;
+
     color:#cbd5e1;
     text-decoration:none;
-    border-radius:10px;
-    transition:0.3s;
+    border-radius:8px;
+
+    transition:0.2s;
 }
 
 .sidebar a:hover{
-    background:rgba(255,255,255,0.1);
-    transform:translateX(5px);
+    background:#1f2937;
     color:white;
 }
 
-/* ================= MAIN ================= */
-
+/* =========================
+MAIN
+========================= */
 .main{
-    margin-left:260px;
-    padding:30px;
+    margin-left:250px;
+    padding:25px;
 }
 
-/* ================= BACKGROUND ================= */
-
-.glow{
-    position:fixed;
-    width:100%;
-    height:100%;
-    z-index:-1;
-}
-
-.circle{
-    position:absolute;
-    width:300px;
-    height:300px;
-    border-radius:50%;
-    filter:blur(120px);
-    opacity:0.25;
-    animation:move 10s infinite alternate;
-}
-
-.c1{background:#38bdf8; top:-120px; left:-120px;}
-.c2{background:#8b5cf6; bottom:-120px; right:-120px;}
-
-@keyframes move{
-    0%{transform:translate(0,0);}
-    100%{transform:translate(80px,50px);}
-}
-
-/* ================= HEADER ================= */
-
+/* =========================
+HEADER
+========================= */
 .title{
-    font-size:38px;
-    font-weight:bold;
-    margin-bottom:10px;
-    background:linear-gradient(to right,#38bdf8,#a78bfa,#c084fc);
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
+    font-size:28px;
+    font-weight:700;
 }
 
 .subtitle{
     color:#94a3b8;
-    margin-bottom:30px;
+    margin-bottom:25px;
 }
 
-/* ================= CARDS ================= */
-
+/* =========================
+GRID
+========================= */
 .grid{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:20px;
+    gap:15px;
 }
 
+/* =========================
+CARDS (clean SaaS)
+========================= */
 .card{
-    background:rgba(255,255,255,0.07);
-    border:1px solid rgba(255,255,255,0.1);
-    backdrop-filter:blur(18px);
-    border-radius:20px;
-    padding:20px;
-    transition:0.3s;
-    position:relative;
-    overflow:hidden;
+    background:#111827;
+    border:1px solid #1f2937;
+    border-radius:12px;
+
+    padding:18px;
+
+    transition:0.2s;
 }
 
 .card:hover{
-    transform:translateY(-10px) scale(1.02);
-    box-shadow:0 20px 40px rgba(56,189,248,0.2);
-}
-
-.card::before{
-    content:'';
-    position:absolute;
-    width:120px;
-    height:120px;
-    background:rgba(255,255,255,0.08);
-    border-radius:50%;
-    top:-40px;
-    right:-40px;
-}
-
-/* ================= VALUE ================= */
-
-.value{
-    font-size:28px;
-    font-weight:bold;
+    transform:translateY(-3px);
+    border-color:#3b82f6;
 }
 
 .label{
-    color:#94a3b8;
+    color:#9ca3af;
+    font-size:13px;
 }
 
-/* ================= QUICK ACTIONS ================= */
+.value{
+    font-size:22px;
+    font-weight:700;
+    margin-top:8px;
+}
 
+/* =========================
+BUTTONS
+========================= */
 .actions{
-    margin-top:30px;
+    margin-top:25px;
     display:flex;
-    gap:15px;
+    gap:10px;
     flex-wrap:wrap;
 }
 
 .btn{
-    padding:12px 18px;
-    border-radius:14px;
+    padding:10px 14px;
+    border-radius:8px;
     text-decoration:none;
+
+    background:#2563eb;
     color:white;
-    background:linear-gradient(135deg,#38bdf8,#6366f1);
-    transition:0.3s;
-    font-weight:bold;
+
+    font-weight:600;
+
+    transition:0.2s;
 }
 
 .btn:hover{
-    transform:translateY(-5px);
-    box-shadow:0 15px 30px rgba(56,189,248,0.3);
+    background:#1d4ed8;
 }
 
-/* ================= CHART ================= */
-
+/* =========================
+CHART
+========================= */
 .chart-box{
-    margin-top:40px;
-    background:rgba(255,255,255,0.05);
-    padding:20px;
-    border-radius:20px;
-    backdrop-filter:blur(15px);
+    margin-top:30px;
+    background:#111827;
+    padding:18px;
+    border-radius:12px;
+    border:1px solid #1f2937;
 }
 
-/* ================= FLOATING CARTOON ================= */
+/* =========================
+RESPONSIVE
+========================= */
+@media(max-width:768px){
+    .sidebar{
+        display:none;
+    }
 
-.cartoon{
-    position:fixed;
-    bottom:20px;
-    right:20px;
-    animation:float 3s infinite;
-}
-
-.cartoon img{
-    width:110px;
-}
-
-@keyframes float{
-    0%{transform:translateY(0);}
-    50%{transform:translateY(-15px);}
-    100%{transform:translateY(0);}
+    .main{
+        margin-left:0;
+    }
 }
 
 </style>
 
-<!-- BACKGROUND GLOW -->
-<div class="glow">
-    <div class="circle c1"></div>
-    <div class="circle c2"></div>
-</div>
-
 <!-- SIDEBAR -->
 <div class="sidebar">
 
-    <h2>⚡ BM System</h2>
+    <h2>⚡ Business System</h2>
 
     <a href="/site/index">🏠 Dashboard</a>
     <a href="/product/index">📦 Products</a>
@@ -238,7 +200,7 @@ body{
     </div>
 
     <div class="subtitle">
-        Your Business Workflow & Management System Dashboard
+        Manage your business operations in one place
     </div>
 
     <!-- STATS -->
@@ -246,34 +208,34 @@ body{
 
         <div class="card">
             <div class="label">Total Sales</div>
-            <div class="value">TZS 0</div>
+            <div class="value">TZS <?= number_format($totalSales) ?></div>
         </div>
 
         <div class="card">
             <div class="label">Total Profit</div>
-            <div class="value">TZS 0</div>
+            <div class="value">TZS <?= number_format($totalProfit) ?></div>
         </div>
 
         <div class="card">
             <div class="label">Branches</div>
-            <div class="value">0</div>
+            <div class="value"><?= $totalBranches ?></div>
         </div>
 
         <div class="card">
-            <div class="label">Low Stock Alerts</div>
-            <div class="value">0</div>
+            <div class="label">Low Stock</div>
+            <div class="value"><?= $lowStock ?></div>
         </div>
 
     </div>
 
-    <!-- QUICK ACTIONS -->
+    <!-- ACTIONS -->
     <div class="actions">
 
         <a class="btn" href="/product/create">➕ Add Product</a>
 
         <a class="btn" href="/sale/create">💳 New Sale</a>
 
-        <a class="btn" href="/analytics/index">📊 View Analytics</a>
+        <a class="btn" href="/analytics/index">📊 Analytics</a>
 
     </div>
 
@@ -288,46 +250,32 @@ body{
 
 </div>
 
-<!-- FLOATING CARTOON -->
-<div class="cartoon">
-
-    <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png">
-
-</div>
-
 <script>
 
 new Chart(document.getElementById('chart'), {
 
-    type:'line',
+    type: 'line',
 
-    data:{
-
-        labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
-
-        datasets:[{
-
-            label:'Sales',
-
-            data:[10,20,15,30,40,35,50],
-
-            borderColor:'#38bdf8',
-
-            tension:0.4
-
+    data: {
+        labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+        datasets: [{
+            label: 'Sales',
+            data: [10,20,15,30,40,35,50],
+            borderColor: '#3b82f6',
+            tension: 0.4
         }]
-
     },
 
-    options:{
-
-        plugins:{legend:{labels:{color:'white'}}},
-
-        scales:{
-            x:{ticks:{color:'white'}},
-            y:{ticks:{color:'white'}}
+    options: {
+        plugins: {
+            legend: {
+                labels: { color: 'white' }
+            }
+        },
+        scales: {
+            x: { ticks: { color: 'white' } },
+            y: { ticks: { color: 'white' } }
         }
-
     }
 
 });

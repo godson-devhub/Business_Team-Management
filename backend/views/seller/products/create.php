@@ -1,22 +1,18 @@
-<h2>Create Product</h2>
+<?php
 
-<form method="post">
+use yii\helpers\Html;
 
-    <label>Name</label>
-    <input type="text" name="Product[name]" class="form-control">
+$this->title = 'Add Product';
+?>
 
-    <label>SKU</label>
-    <input type="text" name="Product[sku]" class="form-control">
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h3 class="mb-0">➕ Create New Product</h3>
+    </div>
 
-    <label>Buying Price</label>
-    <input type="number" name="Product[buying_price]" class="form-control">
-
-    <label>Selling Price</label>
-    <input type="number" name="Product[selling_price]" class="form-control">
-
-    <label>Stock</label>
-    <input type="number" name="Product[stock_quantity]" class="form-control">
-
-    <button class="btn btn-primary mt-2">Save</button>
-
-</form>
+    <div class="card-body">
+        <?= $this->render('_form', [
+            'model' => $model
+        ]) ?>
+    </div>
+</div>

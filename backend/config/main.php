@@ -8,14 +8,39 @@ $params = array_merge(
 );
 
 return [
+
+    // =========================
+    // APP ID
+    // =========================
     'id' => 'app-backend',
+
+    // =========================
+    // BASE PATH
+    // =========================
     'basePath' => dirname(__DIR__),
+
+    // =========================
+    // CONTROLLER NAMESPACE
+    // =========================
     'controllerNamespace' => 'backend\controllers',
 
-    'bootstrap' => ['log'],
+    // =========================
+    // BOOTSTRAP (SAFE MODE)
+    // =========================
+    'bootstrap' => [
+        'log',
+        // Safe bootstrap only (remove if file doesn't exist)
+        'common\bootstrap\MailerBootstrap',
+    ],
 
+    // =========================
+    // MODULES
+    // =========================
     'modules' => [],
 
+    // =========================
+    // COMPONENTS
+    // =========================
     'components' => [
 
         // =========================
@@ -39,10 +64,17 @@ return [
         ],
 
         // =========================
+        // RBAC
+        // =========================
+        'authManager' => [
+            'class' => \yii\rbac\DbManager::class,
+        ],
+
+        // =========================
         // SESSION
         // =========================
         'session' => [
-            'name' => 'advanced-backend',
+            'name' => 'advanced-backend-session',
         ],
 
         // =========================
@@ -66,27 +98,64 @@ return [
         ],
 
         // =========================
-        // URL MANAGER (IMPORTANT 🔥)
+        // URL MANAGER (CLEAN ROUTES)
         // =========================
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
+            'enableStrictParsing' => false,
+
             'rules' => [
 
-                // DASHBOARDS
-                'owner' => 'owner-dashboard/index',
-                'seller' => 'seller/index',
-                'analytics' => 'analytics/index',
+                // =====================
+                // AUTH ROUTES
+                // =====================
+                '' => 'site/index',
+                'login' => 'site/login',
+                'logout' => 'site/logout',
+                'signup' => 'site/signup',
 
-                // CORE MODULES
+                // =====================
+                // DASHBOARDS
+                // =====================
+                'owner-dashboard' => 'owner-dashboard/index',
+                'seller-dashboard' => 'seller/index',
+
+                // =====================
+                // OWNER MANAGEMENT
+                // =====================
+                'owner/sellers' => 'owner-seller/index',
+                'owner/sellers/create' => 'owner-seller/create',
+                'owner/sellers/update/<id:\d+>' => 'owner-seller/update',
+                'owner/sellers/delete/<id:\d+>' => 'owner-seller/delete',
+
+                // =====================
+                // CORE ERP MODULES
+                // =====================
                 'products' => 'product/index',
                 'sales' => 'sale/index',
-                'purchases' => 'purchase/index',
-                'branches' => 'branch/index',
-                'businesses' => 'business/index',
+
+                // =====================
+                // ANALYTICS MODULE
+                // =====================
+                'analytics' => 'analytics/index',
+                'analytics/daily' => 'analytics/daily',
+                'analytics/monthly' => 'analytics/monthly',
+                'analytics/weekly' => 'analytics/weekly',
+                'analytics/charts' => 'analytics/charts',
+
+                // =====================
+                // AJAX ANALYTICS
+                // =====================
+                'analytics/ajax/daily' => 'analytics/daily-ajax',
+                'analytics/ajax/monthly' => 'analytics/monthly-ajax',
+                'analytics/ajax/weekly' => 'analytics/weekly-ajax',
             ],
         ],
     ],
 
+    // =========================
+    // PARAMETERS
+    // =========================
     'params' => $params,
 ];
