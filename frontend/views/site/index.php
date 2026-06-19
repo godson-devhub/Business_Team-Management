@@ -149,22 +149,37 @@ $signupUrl = 'http://localhost/business-system/backend/web/signup';
 
             <div class="contact-card">
                 📞 Call & WhatsApp<br>
-                0620871857
+                <a href="https://wa.me/255620871857?text=Habari%20nimeona%20service%20yako" target="_blank">
+                    Chat WhatsApp
+                </a>
+               
+                </a>
+                
             </div>
 
             <div class="contact-card">
                 📸 Instagram<br>
-                @itc_melody_99
+                <a href="https://www.instagram.com/itc_melody_99/" target="_blank">
+                    Instagram
+                </a>
+                
             </div>
 
             <div class="contact-card">
                 🎵 TikTok<br>
-                @itc_melody
+                <a href="https://www.tiktok.com/@melodiz009" target="_blank">
+                    TikTok
+                </a>
+
+                
             </div>
 
             <div class="contact-card">
                 ▶ YouTube<br>
-                ITC Melody
+                <a href="https://www.youtube.com/@melody-k1z-c2l" target="_blank">
+                    YouTube
+                </a>
+                
             </div>
 
         </div>

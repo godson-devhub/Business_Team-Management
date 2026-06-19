@@ -370,11 +370,13 @@ use yii\helpers\Html;
 
         WhatsApp: 0620871857<br>
 
+        email:mshiugodson@gmail.com<br>
+
         Instagram: @itc_melody_99<br>
 
         TikTok: @itc_melody<br>
 
-        YouTube: ITC Melody
+        YouTube: itc_melody
 
     </div>
 
