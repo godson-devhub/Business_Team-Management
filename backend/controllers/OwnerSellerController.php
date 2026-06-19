@@ -14,11 +14,9 @@ use common\components\RbacHelper;
 
 class OwnerSellerController extends Controller
 {
-    /**
-     * =========================
+    /* =========================
      * ACCESS CONTROL (OWNER ONLY)
-     * =========================
-     */
+     * ========================= */
     public function behaviors()
     {
         return [
@@ -37,18 +35,24 @@ class OwnerSellerController extends Controller
         ];
     }
 
-    /**
-     * =========================
-     * LIST SELLERS
-     * =========================
-     */
+    /* =========================
+     * LIST SELLERS (FILTERED VIA BRANCH → BUSINESS)
+     * ========================= */
     public function actionIndex()
     {
         $this->checkOwner();
 
+        $ownerId = Yii::$app->user->id;
+
         $sellers = User::find()
-            ->where(['role' => 'seller'])
-            ->orderBy(['id' => SORT_DESC])
+            ->alias('u')
+            ->innerJoin('branch b', 'b.id = u.branch_id')
+            ->innerJoin('business bs', 'bs.id = b.business_id')
+            ->where([
+                'u.role' => 'seller',
+                'bs.owner_id' => $ownerId
+            ])
+            ->orderBy(['u.id' => SORT_DESC])
             ->all();
 
         return $this->render('index', [
@@ -56,25 +60,42 @@ class OwnerSellerController extends Controller
         ]);
     }
 
-    /**
-     * =========================
-     * CREATE SELLER
-     * =========================
-     */
+    /* =========================
+     * CREATE SELLER (ASSIGN BRANCH SAFELY)
+     * ========================= */
     public function actionCreate()
     {
         $this->checkOwner();
 
         $model = new User();
-        $branches = Branch::find()->orderBy(['name' => SORT_ASC])->all();
+
+        // ONLY branches belonging to this owner
+        $branches = Branch::find()
+            ->alias('b')
+            ->innerJoin('business bs', 'bs.id = b.business_id')
+            ->where(['bs.owner_id' => Yii::$app->user->id])
+            ->orderBy(['b.name' => SORT_ASC])
+            ->all();
 
         if ($model->load(Yii::$app->request->post())) {
 
-            // FORCE ROLE
             $model->role = 'seller';
             $model->status = 10;
 
-            // PASSWORD HANDLING (IMPORTANT FIX)
+            // SECURITY: ensure branch belongs to this owner
+            $branch = Branch::find()
+                ->alias('b')
+                ->innerJoin('business bs', 'bs.id = b.business_id')
+                ->where([
+                    'b.id' => $model->branch_id,
+                    'bs.owner_id' => Yii::$app->user->id
+                ])
+                ->one();
+
+            if (!$branch) {
+                throw new ForbiddenHttpException("Invalid branch selected");
+            }
+
             if (!empty($model->password)) {
                 $model->setPassword($model->password);
             } else {
@@ -99,28 +120,53 @@ class OwnerSellerController extends Controller
         ]);
     }
 
-    /**
-     * =========================
-     * UPDATE SELLER
-     * =========================
-     */
+    /* =========================
+     * UPDATE SELLER (SECURE OWNERSHIP CHECK)
+     * ========================= */
     public function actionUpdate($id)
     {
         $this->checkOwner();
 
-        $model = User::findOne($id);
+        $model = User::find()
+            ->alias('u')
+            ->innerJoin('branch b', 'b.id = u.branch_id')
+            ->innerJoin('business bs', 'bs.id = b.business_id')
+            ->where([
+                'u.id' => $id,
+                'u.role' => 'seller',
+                'bs.owner_id' => Yii::$app->user->id
+            ])
+            ->one();
 
-        if (!$model || $model->role !== 'seller') {
+        if (!$model) {
             throw new NotFoundHttpException("Seller not found");
         }
 
-        $branches = Branch::find()->orderBy(['name' => SORT_ASC])->all();
+        $branches = Branch::find()
+            ->alias('b')
+            ->innerJoin('business bs', 'bs.id = b.business_id')
+            ->where(['bs.owner_id' => Yii::$app->user->id])
+            ->orderBy(['b.name' => SORT_ASC])
+            ->all();
 
         $oldPassword = $model->password_hash;
 
         if ($model->load(Yii::$app->request->post())) {
 
-            // DO NOT overwrite password unless provided
+            // re-check branch ownership
+            $branch = Branch::find()
+                ->alias('b')
+                ->innerJoin('business bs', 'bs.id = b.business_id')
+                ->where([
+                    'b.id' => $model->branch_id,
+                    'bs.owner_id' => Yii::$app->user->id
+                ])
+                ->one();
+
+            if (!$branch) {
+                throw new ForbiddenHttpException("Invalid branch selected");
+            }
+
             if (!empty($model->password)) {
                 $model->setPassword($model->password);
             } else {
@@ -139,18 +185,25 @@ class OwnerSellerController extends Controller
         ]);
     }
 
-    /**
-     * =========================
-     * DELETE SELLER
-     * =========================
-     */
+    /* =========================
+     * DELETE SELLER (SECURE)
+     * ========================= */
     public function actionDelete($id)
     {
         $this->checkOwner();
 
-        $model = User::findOne($id);
+        $model = User::find()
+            ->alias('u')
+            ->innerJoin('branch b', 'b.id = u.branch_id')
+            ->innerJoin('business bs', 'bs.id = b.business_id')
+            ->where([
+                'u.id' => $id,
+                'u.role' => 'seller',
+                'bs.owner_id' => Yii::$app->user->id
+            ])
+            ->one();
 
-        if (!$model || $model->role !== 'seller') {
+        if (!$model) {
             throw new NotFoundHttpException("Seller not found");
         }
 
@@ -161,11 +214,9 @@ class OwnerSellerController extends Controller
         return $this->redirect(['index']);
     }
 
-    /**
-     * =========================
-     * CENTRAL OWNER CHECK
-     * =========================
-     */
+    /* =========================
+     * OWNER CHECK
+     * ========================= */
     private function checkOwner()
     {
         if (Yii::$app->user->isGuest) {

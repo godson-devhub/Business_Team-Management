@@ -7,13 +7,14 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\filters\VerbFilter;
+
 use common\models\Product;
 use common\models\Branch;
 
 class OwnerProductController extends Controller
 {
     /* =========================
-     BEHAVIORS (SECURE DELETE)
+     BEHAVIORS
     ========================= */
     public function behaviors()
     {
@@ -28,16 +29,35 @@ class OwnerProductController extends Controller
     }
 
     /* =========================
-     INDEX (SELECT BRANCH + LIST PRODUCTS)
+     INDEX (FILTERED BRANCHES + PRODUCTS)
     ========================= */
     public function actionIndex($branch_id = null)
     {
+        $ownerId = Yii::$app->user->id;
+
+        // 🔥 ONLY BRANCHES BELONGING TO OWNER
         $branches = Branch::find()
-            ->orderBy(['name' => SORT_ASC])
+            ->alias('b')
+            ->innerJoin('business bs', 'bs.id = b.business_id')
+            ->where(['bs.owner_id' => $ownerId])
+            ->orderBy(['b.name' => SORT_ASC])
             ->all();
 
-        // set selected branch
+        // validate selected branch belongs to owner
         if ($branch_id) {
+            $validBranch = Branch::find()
+                ->alias('b')
+                ->innerJoin('business bs', 'bs.id = b.business_id')
+                ->where([
+                    'b.id' => $branch_id,
+                    'bs.owner_id' => $ownerId
+                ])
+                ->one();
+
+            if (!$validBranch) {
+                throw new ForbiddenHttpException('Invalid branch selected');
+            }
+
             Yii::$app->session->set('active_branch_id', $branch_id);
         }
 
@@ -47,18 +67,10 @@ class OwnerProductController extends Controller
 
         if ($activeBranch) {
 
-            $branch = Branch::findOne($activeBranch);
-
-            // validate branch exists
-            if (!$branch) {
-                Yii::$app->session->remove('active_branch_id');
-                $activeBranch = null;
-            } else {
-                $products = Product::find()
-                    ->where(['branch_id' => $activeBranch])
-                    ->orderBy(['id' => SORT_DESC])
-                    ->all();
-            }
+            $products = Product::find()
+                ->where(['branch_id' => $activeBranch])
+                ->orderBy(['id' => SORT_DESC])
+                ->all();
         }
 
         return $this->render('index', [
@@ -78,20 +90,32 @@ class OwnerProductController extends Controller
         }
 
         $branchId = Yii::$app->session->get('active_branch_id');
+        $ownerId  = Yii::$app->user->id;
 
         if (!$branchId) {
             Yii::$app->session->setFlash('error', 'Please select a branch first.');
             return $this->redirect(['index']);
         }
 
-        $model = new Product();
+        // 🔥 VALIDATE BRANCH OWNERSHIP
+        $branch = Branch::find()
+            ->alias('b')
+            ->innerJoin('business bs', 'bs.id = b.business_id')
+            ->where([
+                'b.id' => $branchId,
+                'bs.owner_id' => $ownerId
+            ])
+            ->one();
 
-        // IMPORTANT: assign branch BEFORE load/save
+        if (!$branch) {
+            throw new ForbiddenHttpException('Invalid branch access.');
+        }
+
+        $model = new Product();
         $model->branch_id = $branchId;
 
         if ($model->load(Yii::$app->request->post())) {
 
-            // FIX: created_by foreign key error
             $model->created_by = Yii::$app->user->id;
 
             if ($model->save()) {
@@ -119,17 +143,26 @@ class OwnerProductController extends Controller
             throw new ForbiddenHttpException('Login required.');
         }
 
+        $ownerId = Yii::$app->user->id;
+
         $model = Product::findOne($id);
 
         if (!$model) {
             throw new NotFoundHttpException('Product not found.');
         }
 
-        $branchId = Yii::$app->session->get('active_branch_id');
+        // 🔥 VALIDATE PRODUCT OWNERSHIP VIA BRANCH → BUSINESS
+        $valid = Branch::find()
+            ->alias('b')
+            ->innerJoin('business bs', 'bs.id = b.business_id')
+            ->where([
+                'b.id' => $model->branch_id,
+                'bs.owner_id' => $ownerId
+            ])
+            ->one();
 
-        // ensure user is working in same branch
-        if ($branchId && $model->branch_id != $branchId) {
-            throw new ForbiddenHttpException('Access denied for this branch.');
+        if (!$valid) {
+            throw new ForbiddenHttpException('Access denied.');
         }
 
         if ($model->load(Yii::$app->request->post())) {
@@ -159,16 +192,26 @@ class OwnerProductController extends Controller
             throw new ForbiddenHttpException('Login required.');
         }
 
+        $ownerId = Yii::$app->user->id;
+
         $model = Product::findOne($id);
 
         if (!$model) {
             throw new NotFoundHttpException('Product not found.');
         }
 
-        $branchId = Yii::$app->session->get('active_branch_id');
+        // 🔥 VALIDATE OWNERSHIP
+        $valid = Branch::find()
+            ->alias('b')
+            ->innerJoin('business bs', 'bs.id = b.business_id')
+            ->where([
+                'b.id' => $model->branch_id,
+                'bs.owner_id' => $ownerId
+            ])
+            ->one();
 
-        if ($branchId && $model->branch_id != $branchId) {
-            throw new ForbiddenHttpException('Access denied for this branch.');
+        if (!$valid) {
+            throw new ForbiddenHttpException('Access denied.');
         }
 
         $redirectBranch = $model->branch_id;

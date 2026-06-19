@@ -19,6 +19,7 @@ $this->title = $branch->name;
 $sellerCount = count($sellers ?? []);
 $productCount = count($products ?? []);
 $purchaseCount = count($purchases ?? []);
+$salesCount = count($sales ?? []);
 
 // STOCK CALC
 $totalStockValue = 0;
@@ -234,6 +235,12 @@ body{
                 <div class="card">
                     <div class="card-value"><?= $purchaseCount ?></div>
                     <div class="card-label">Purchases</div>
+                </div>
+            </a>
+            <a href="<?= Url::to(['/branch/sales', 'id' => $branch->id]) ?>" class="card-link">
+                <div class="card">
+                    <div class="card-value"><?= $salesCount ?></div>
+                    <div class="card-label">Sales History</div>
                 </div>
             </a>
 

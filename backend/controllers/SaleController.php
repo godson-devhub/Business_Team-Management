@@ -150,15 +150,7 @@ class SaleController extends Controller
 
             // =========================
             // STOCK UPDATE
-            // =========================
-            StockService::decreaseStock(
-                $product->id,
-                $user->branch_id,
-                $user->id,
-                $quantity,
-                "Sale #{$sale->id}"
-            );
-
+  
             $transaction->commit();
 
             Yii::$app->session->setFlash('success', 'Sale completed successfully.');

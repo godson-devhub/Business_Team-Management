@@ -30,12 +30,11 @@ class PurchaseController extends Controller
                         'roles' => ['@'],
 
                         'matchCallback' => function () {
-
-                            return Yii::$app
-                                ->user
-                                ->identity
-                                ->role === 'seller';
+                             return Yii::$app->user->identity
+                                && Yii::$app->user->identity->role === 'seller';
                         }
+
+                        
                     ],
                 ],
             ],
@@ -44,7 +43,10 @@ class PurchaseController extends Controller
 
     public function actionIndex()
     {
+        $user = Yii::$app->user->identity;
+
         $purchases = Purchase::find()
+            ->where(['branch_id' => $user->branch_id])
             ->orderBy(['id' => SORT_DESC])
             ->all();
 
@@ -107,7 +109,9 @@ class PurchaseController extends Controller
                 $purchase->created_at =
                     time();
 
-                $purchase->save(false);
+                if (!$purchase->save()) {
+                    throw new \Exception(json_encode($sale->errors));
+                }
 
                 // PURCHASE ITEM
                 $item = new PurchaseItem();
@@ -135,9 +139,13 @@ class PurchaseController extends Controller
                     $subtotal;
                 
                 $item->created_at = time();
+
+                if (!$item->save()) {
+                    throw new \Exception(json_encode($item->errors));
+                }
                 
                 
-                $item->save(false);
+                
 
                 // INCREASE STOCK
                 StockService::increaseStock(

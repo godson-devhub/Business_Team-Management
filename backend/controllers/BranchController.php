@@ -116,6 +116,7 @@ class BranchController extends Controller
             ->orderBy([
                 'id' => SORT_DESC
             ])
+            
 
             ->limit(10)
 
@@ -429,6 +430,46 @@ class BranchController extends Controller
             'purchases' => $purchases,
         ]);
     }
+
+
+
+/* =========================
+ * SALES HISTORY PAGE
+ * ========================= */
+    public function actionSales($id)
+    {
+        $branch = $this->findModel($id);
+
+        $sales = SaleItem::find()
+            ->alias('si')
+
+            ->innerJoin(
+                'sale s',
+                's.id = si.sale_id'
+            )
+
+            ->innerJoin(
+                'product p',
+                'p.id = si.product_id'
+            )
+
+            ->where([
+                's.branch_id' => $id
+            ])
+
+            ->orderBy([
+                's.id' => SORT_DESC
+            ])
+
+            ->all();
+
+        return $this->render('sales', [
+           'branch' => $branch,
+           'sales' => $sales,
+        ]);
+    }
+
+
     
 
     /* =========================
