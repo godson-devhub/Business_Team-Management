@@ -8,156 +8,101 @@ use yii\helpers\Url;
 /** @var \common\models\User $model */
 /** @var array $branches */
 
-$this->title = 'Update Seller';
+$this->title = 'Update ' . $model->username;
 ?>
 
-<style>
+<div class="page-container narrow">
 
-/* ================= PAGE ================= */
-.page {
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 40px;
-    font-family: 'Segoe UI', sans-serif;
-    color: #fff;
-    background: linear-gradient(135deg, #020617, #0f172a, #1e293b);
-}
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="<?= Url::to(['/owner-seller/index']) ?>">
+            <i data-lucide="chevron-left" class="icon-16"></i>
+            Sellers
+        </a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">Edit</span>
+    </nav>
 
-/* ================= CARD ================= */
-.card {
-    width: 100%;
-    max-width: 520px;
-    background: rgba(255, 255, 255, 0.06);
-    backdrop-filter: blur(18px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 22px;
-    padding: 30px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
-    transition: 0.3s ease;
-}
+    <!-- Form Card -->
+    <div class="form-card">
+        <div class="form-header">
+            <div class="form-icon" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">
+                <i data-lucide="pencil" class="icon-24"></i>
+            </div>
+            <div>
+                <h1 class="form-title">Update Seller</h1>
+                <p class="form-subtitle">Edit <?= Html::encode($model->username) ?>'s details</p>
+            </div>
+        </div>
 
-.card:hover {
-    transform: translateY(-5px);
-}
+        <?php $form = ActiveForm::begin([
+            'options' => ['class' => 'form-body'],
+            'fieldConfig' => [
+                'template' => "{label}\n{input}\n{error}",
+                'inputOptions' => ['class' => 'form-control'],
+                'labelOptions' => ['class' => 'form-label'],
+                'errorOptions' => ['class' => 'form-error'],
+            ],
+        ]); ?>
 
-/* ================= TITLE ================= */
-.title {
-    font-size: 28px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    background: linear-gradient(to right, #38bdf8, #a78bfa, #c084fc);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
+            <div class="form-group">
+                <?= $form->field($model, 'username')
+                    ->textInput(['placeholder' => 'Username', 'autocomplete' => 'off'])
+                ?>
+            </div>
 
-/* ================= INPUT ================= */
-.form-control {
-    width: 100%;
-    padding: 12px 14px;
-    margin-bottom: 15px;
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.15);
-    background: rgba(255,255,255,0.05);
-    color: white;
-    outline: none;
-    transition: 0.3s;
-}
+            <div class="form-group">
+                <?= $form->field($model, 'email')
+                    ->textInput(['placeholder' => 'Email address', 'autocomplete' => 'off', 'type' => 'email'])
+                ?>
+            </div>
 
-.form-control:focus {
-    border-color: #38bdf8;
-    box-shadow: 0 0 10px rgba(56,189,248,0.3);
-}
+            <div class="form-group">
+                <?= $form->field($model, 'branch_id')
+                    ->dropDownList(
+                        ArrayHelper::map($branches, 'id', 'name'),
+                        ['prompt' => 'Select Branch', 'class' => 'form-control']
+                    )
+                ?>
+            </div>
 
-/* ================= LABEL ================= */
-label {
-    display: block;
-    margin-bottom: 6px;
-    color: #cbd5e1;
-    font-size: 14px;
-}
-
-/* ================= BUTTON ================= */
-.btn {
-    width: 100%;
-    padding: 14px;
-    border-radius: 14px;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    color: white;
-    background: linear-gradient(135deg, #38bdf8, #6366f1);
-    transition: 0.3s ease;
-}
-
-.btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 15px 30px rgba(56,189,248,0.3);
-}
-
-/* ================= BACK LINK ================= */
-.back {
-    display: inline-block;
-    margin-top: 15px;
-    color: #94a3b8;
-    text-decoration: none;
-    font-size: 14px;
-}
-
-.back:hover {
-    color: #38bdf8;
-}
-
-</style>
-
-<div class="page">
-
-    <div class="card">
-
-        <div class="title">✏ Update Seller</div>
-
-        <?php $form = ActiveForm::begin(); ?>
-
-        <!-- Username -->
-        <?= $form->field($model, 'username')
-            ->textInput([
-                'class' => 'form-control',
-                'placeholder' => 'Username'
-            ])
-        ?>
-
-        <!-- Email -->
-        <?= $form->field($model, 'email')
-            ->textInput([
-                'class' => 'form-control',
-                'placeholder' => 'Email'
-            ])
-        ?>
-
-        <!-- Branch -->
-        <?= $form->field($model, 'branch_id')
-            ->dropDownList(
-                ArrayHelper::map($branches, 'id', 'name'),
-                [
-                    'prompt' => 'Select Branch',
-                    'class' => 'form-control'
-                ]
-            )
-        ?>
-
-        <!-- UPDATE BUTTON -->
-        <?= Html::submitButton('Update Seller', [
-            'class' => 'btn'
-        ]) ?>
+            <div class="form-actions">
+                <a href="<?= Url::to(['/owner-seller/index']) ?>" class="btn btn-secondary">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">
+                    <i data-lucide="save" class="icon-16"></i>
+                    Save Changes
+                </button>
+            </div>
 
         <?php ActiveForm::end(); ?>
-
-        <!-- BACK -->
-        <a href="<?= Url::to(['/owner-seller/index']) ?>" class="back">
-            ← Back to Sellers
-        </a>
-
     </div>
 
 </div>
+
+<style>
+/* Reuses create.php styles + update-specific overrides */
+.form-card::before {
+    background: linear-gradient(90deg, #f59e0b, #ef4444);
+}
+
+@media (max-width: 768px) {
+    .form-card {
+        padding: 20px;
+    }
+    .form-actions {
+        flex-direction: column;
+    }
+    .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+});
+</script>

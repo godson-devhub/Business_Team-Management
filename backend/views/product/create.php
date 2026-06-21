@@ -1,261 +1,177 @@
 <?php
 
-use yii\helpers\Html;
-use yii\widgets\ActiveForm;
-
 /** @var $model common\models\Product */
 
 $this->title = 'Create Product';
 ?>
 
-<!-- =========================
-BACKGROUND (MATCH DASHBOARD)
-========================= -->
-<div class="background-blobs">
-    <div class="blob blob1"></div>
-    <div class="blob blob2"></div>
-</div>
+<div class="page-container narrow">
 
-<!-- =========================
-PAGE WRAPPER
-========================= -->
-<div class="page-wrapper">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="/business-system/backend/web/product/index">
+            <i data-lucide="chevron-left" class="icon-16"></i>
+            Products
+        </a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">Create</span>
+    </nav>
 
-    <div class="glass-card">
-
-        <div class="title">📦 Create Product</div>
-        <div class="subtitle">Add new stock to your branch inventory</div>
-
-        <?php $form = ActiveForm::begin([
-            'id' => 'product-form',
-            'options' => ['autocomplete' => 'off']
-        ]); ?>
-
-        <!-- PRODUCT NAME -->
-        <div class="form-group">
-            <?= $form->field($model, 'name')
-                ->textInput([
-                    'class' => 'input',
-                    'placeholder' => 'Enter product name'
-                ])
-                ->label('Product Name') ?>
+    <!-- Form Card -->
+    <div class="form-card">
+        <div class="form-header">
+            <div class="form-icon">
+                <i data-lucide="package-plus" class="icon-24"></i>
+            </div>
+            <div>
+                <h1 class="form-title">Create Product</h1>
+                <p class="form-subtitle">Add new stock to your branch inventory</p>
+            </div>
         </div>
 
-        <!-- BUYING PRICE -->
-        <div class="form-group">
-            <?= $form->field($model, 'buying_price')
-                ->textInput([
-                    'type' => 'number',
-                    'step' => '0.01',
-                    'class' => 'input',
-                    'placeholder' => 'Buying price'
-                ])
-                ->label('Buying Price') ?>
+        <!-- Feature Highlights -->
+        <div class="feature-row">
+            <div class="feature-pill">
+                <i data-lucide="bar-chart-3" class="icon-14"></i>
+                Stock Tracking
+            </div>
+            <div class="feature-pill">
+                <i data-lucide="trending-up" class="icon-14"></i>
+                Profit Monitor
+            </div>
+            <div class="feature-pill">
+                <i data-lucide="zap" class="icon-14"></i>
+                Fast Add
+            </div>
         </div>
 
-        <!-- SELLING PRICE -->
-        <div class="form-group">
-            <?= $form->field($model, 'selling_price')
-                ->textInput([
-                    'type' => 'number',
-                    'step' => '0.01',
-                    'class' => 'input',
-                    'placeholder' => 'Selling price'
-                ])
-                ->label('Selling Price') ?>
-        </div>
-
-        <!-- STOCK QUANTITY -->
-        <div class="form-group">
-            <?= $form->field($model, 'stock_quantity')
-                ->textInput([
-                    'type' => 'number',
-                    'min' => 0,
-                    'class' => 'input',
-                    'placeholder' => 'Stock quantity'
-                ])
-                ->label('Stock Quantity') ?>
-        </div>
-
-        <!-- MIN STOCK ALERT -->
-        <div class="form-group">
-            <?= $form->field($model, 'min_stock_alert')
-                ->textInput([
-                    'type' => 'number',
-                    'min' => 0,
-                    'class' => 'input',
-                    'placeholder' => 'Low stock alert level'
-                ])
-                ->label('Low Stock Alert') ?>
-        </div>
-
-        <!-- SKU (OPTIONAL BUT IMPORTANT) -->
-        <div class="form-group">
-            <?= $form->field($model, 'sku')
-                ->textInput([
-                    'class' => 'input',
-                    'placeholder' => 'Auto or manual SKU'
-                ])
-                ->label('SKU') ?>
-        </div>
-
-        <!-- STATUS -->
-        <div class="form-group">
-            <?= $form->field($model, 'status')
-                ->dropDownList([
-                    1 => 'Active',
-                    0 => 'Inactive'
-                ], [
-                    'class' => 'input'
-                ])
-                ->label('Status') ?>
-        </div>
-
-        <!-- BUTTON -->
-        <div class="form-group">
-            <?= Html::submitButton('🚀 Save Product', [
-                'class' => 'btn'
+        <div class="form-wrapper">
+            <?= $this->render('_form', [
+                'model' => $model
             ]) ?>
         </div>
-
-        <?php ActiveForm::end(); ?>
-
     </div>
 
 </div>
 
-<!-- =========================
-STYLE (MATCH DASHBOARD UI)
-========================= -->
 <style>
-
-body{
-    margin:0;
-    padding:0;
-    font-family:'Segoe UI',sans-serif;
-    background:linear-gradient(135deg,#020617,#0f172a,#1e293b);
-    color:white;
+/* ============================================
+   NARROW CONTAINER
+   ============================================ */
+.page-container.narrow {
+    max-width: 640px;
+    margin: 0 auto;
+    padding-top: 20px;
 }
 
-/* BLOBS */
-.background-blobs{
-    position:fixed;
-    width:100%;
-    height:100%;
-    z-index:-1;
-    overflow:hidden;
+/* ============================================
+   FORM CARD
+   ============================================ */
+.form-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 32px;
+    margin-top: 24px;
+    position: relative;
+    overflow: hidden;
 }
 
-.blob{
-    position:absolute;
-    border-radius:50%;
-    filter:blur(90px);
-    opacity:0.35;
+.form-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), #8b5cf6);
 }
 
-.blob1{
-    width:320px;
-    height:320px;
-    background:#38bdf8;
-    top:-60px;
-    left:-60px;
+.form-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
 }
 
-.blob2{
-    width:280px;
-    height:280px;
-    background:#8b5cf6;
-    bottom:-60px;
-    right:-60px;
+.form-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, var(--primary), #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 4px 12px var(--primary-glow);
+    flex-shrink: 0;
 }
 
-/* WRAPPER */
-.page-wrapper{
-    display:flex;
-    justify-content:center;
-    padding:40px;
+.form-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 4px 0;
 }
 
-/* GLASS CARD */
-.glass-card{
-    width:100%;
-    max-width:600px;
-    background:rgba(255,255,255,0.07);
-    border:1px solid rgba(255,255,255,0.15);
-    backdrop-filter:blur(18px);
-    border-radius:25px;
-    padding:35px;
-    box-shadow:0 10px 40px rgba(0,0,0,0.4);
+.form-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 0;
 }
 
-/* TITLE */
-.title{
-    font-size:30px;
-    font-weight:bold;
-    background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc);
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
+/* ============================================
+   FEATURE ROW
+   ============================================ */
+.feature-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
 }
 
-.subtitle{
-    color:#94a3b8;
-    margin-bottom:25px;
-    font-size:14px;
+.feature-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
 }
 
-/* FORM */
-.form-group{
-    margin-bottom:18px;
+.feature-pill i {
+    color: var(--primary);
 }
 
-/* INPUT FIX (IMPORTANT FOR UX) */
-.input,
-input,
-select{
-    width:100%;
-    padding:14px;
-    border-radius:14px;
-    border:none;
-    outline:none;
-    background:rgba(255,255,255,0.08);
-    color:white;
-    font-size:14px;
-    transition:0.3s;
+/* ============================================
+   FORM WRAPPER
+   ============================================ */
+.form-wrapper {
+    margin-top: 8px;
 }
 
-.input:focus,
-input:focus,
-select:focus{
-    background:rgba(255,255,255,0.15);
-    transform:scale(1.02);
-    box-shadow:0 0 15px rgba(56,189,248,0.3);
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .form-card {
+        padding: 20px;
+    }
+    .feature-row {
+        flex-direction: column;
+    }
+    .feature-pill {
+        justify-content: center;
+    }
 }
-
-/* LABEL FIX */
-label{
-    color:#cbd5e1;
-    font-size:13px;
-    margin-bottom:6px;
-    display:block;
-}
-
-/* BUTTON */
-.btn{
-    width:100%;
-    padding:15px;
-    border:none;
-    border-radius:14px;
-    background:linear-gradient(135deg,#38bdf8,#6366f1,#8b5cf6);
-    color:white;
-    font-size:15px;
-    font-weight:bold;
-    cursor:pointer;
-    transition:0.3s;
-}
-
-.btn:hover{
-    transform:translateY(-4px);
-    box-shadow:0 12px 30px rgba(99,102,241,0.4);
-}
-
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+});
+</script>

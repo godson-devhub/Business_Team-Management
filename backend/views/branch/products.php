@@ -10,163 +10,151 @@ use yii\helpers\Url;
 
 $this->title = $branch->name . ' Products';
 
-/* =========================
-STATS CALCULATION
-========================= */
 $totalProducts = count($products);
 $totalStockQty = 0;
 $totalInventoryValue = 0;
 $lowStockCount = 0;
 
 foreach ($products as $product) {
-
     $totalStockQty += (int)$product->stock_quantity;
-
-    $totalInventoryValue += (
-        (int)$product->stock_quantity * (float)$product->selling_price
-    );
-
+    $totalInventoryValue += ((int)$product->stock_quantity * (float)$product->selling_price);
     if ($product->stock_quantity <= $product->min_stock_alert) {
         $lowStockCount++;
     }
 }
 ?>
 
-<!-- =========================
-BACKGROUND (SAME AS SELLER DASHBOARD)
-========================= -->
-<div class="background-blobs">
-    <div class="blob blob1"></div>
-    <div class="blob blob2"></div>
-</div>
+<div class="page-container">
 
-<div class="page-wrapper">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="<?= Url::to(['branch/view', 'id' => $branch->id]) ?>">
+            <i data-lucide="chevron-left" class="icon-16"></i>
+            <?= Html::encode($branch->name) ?>
+        </a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">Products</span>
+    </nav>
 
-    <!-- HEADER -->
+    <!-- Page Header -->
     <div class="page-header">
-
         <div>
-            <h1 class="page-title">📦 <?= Html::encode($branch->name) ?> Products</h1>
+            <h1 class="page-title">Products</h1>
             <p class="page-subtitle">Manage branch inventory & stock levels</p>
         </div>
-
-        <a href="<?= Url::to(['/branch/view', 'id' => $branch->id]) ?>" class="back-btn">
-            ← Back Dashboard
-        </a>
-
     </div>
 
-    <!-- SUMMARY CARDS -->
-    <div class="summary-grid">
-
-        <div class="summary-card">
-            <div class="summary-value"><?= number_format($totalProducts) ?></div>
-            <div class="summary-label">Total Products</div>
-        </div>
-
-        <div class="summary-card">
-            <div class="summary-value"><?= number_format($totalStockQty) ?></div>
-            <div class="summary-label">Total Stock Quantity</div>
-        </div>
-
-        <div class="summary-card">
-            <div class="summary-value">
-                TZS <?= number_format($totalInventoryValue, 2) ?>
+    <!-- Summary Cards -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(59,130,246,0.15); color: #3b82f6;">
+                <i data-lucide="package" class="icon-20"></i>
             </div>
-            <div class="summary-label">Inventory Value</div>
+            <div class="stat-info">
+                <div class="stat-value"><?= number_format($totalProducts) ?></div>
+                <div class="stat-label">Total Products</div>
+            </div>
         </div>
-
-        <div class="summary-card">
-            <div class="summary-value"><?= number_format($lowStockCount) ?></div>
-            <div class="summary-label">Low Stock Alerts</div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(34,197,94,0.15); color: #22c55e;">
+                <i data-lucide="layers" class="icon-20"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value"><?= number_format($totalStockQty) ?></div>
+                <div class="stat-label">Total Stock Qty</div>
+            </div>
         </div>
-
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(245,158,11,0.15); color: #f59e0b;">
+                <i data-lucide="wallet" class="icon-20"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value">TZS <?= number_format($totalInventoryValue, 2) ?></div>
+                <div class="stat-label">Inventory Value</div>
+            </div>
+        </div>
+        <div class="stat-card <?= $lowStockCount > 0 ? 'critical' : '' ?>">
+            <div class="stat-icon" style="background: rgba(239,68,68,0.15); color: #ef4444;">
+                <i data-lucide="alert-triangle" class="icon-20"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value" style="color: <?= $lowStockCount > 0 ? '#ef4444' : 'var(--text)' ?>;">
+                    <?= number_format($lowStockCount) ?>
+                </div>
+                <div class="stat-label">Low Stock Alerts</div>
+            </div>
+        </div>
     </div>
 
-    <!-- TABLE -->
-    <div class="table-card">
-
-        <div class="table-header">
-            📊 Product Inventory List
+    <!-- Data Table -->
+    <div class="data-card">
+        <div class="data-header">
+            <h3 class="data-title">
+                <i data-lucide="list" class="icon-18"></i>
+                Product Inventory
+            </h3>
         </div>
 
         <?php if (!empty($products)): ?>
 
-            <div class="table-wrap">
-
-                <table>
-
+            <div class="table-responsive">
+                <table class="data-table">
                     <thead>
                         <tr>
                             <th>#</th>
                             <th>Product</th>
-                            <th>Buy</th>
-                            <th>Sell</th>
-                            <th>Stock</th>
-                            <th>Profit</th>
-                            <th>Status</th>
+                            <th class="text-right">Buy Price</th>
+                            <th class="text-right">Sell Price</th>
+                            <th class="text-center">Stock</th>
+                            <th class="text-right">Profit</th>
+                            <th class="text-center">Status</th>
                         </tr>
                     </thead>
-
                     <tbody>
-
-                    <?php foreach ($products as $index => $product): ?>
-
-                        <?php
-                            $profit = $product->selling_price - $product->buying_price;
-                            $isLow = $product->stock_quantity <= $product->min_stock_alert;
-                        ?>
-
-                        <tr>
-
-                            <td><?= $index + 1 ?></td>
-
-                            <td>
-                                <?= Html::encode($product->name) ?>
-                            </td>
-
-                            <td>
-                                TZS <?= number_format($product->buying_price, 2) ?>
-                            </td>
-
-                            <td>
-                                TZS <?= number_format($product->selling_price, 2) ?>
-                            </td>
-
-                            <td>
-                                <span class="badge">
-                                    <?= (int)$product->stock_quantity ?>
-                                </span>
-                            </td>
-
-                            <td>
-                                TZS <?= number_format($profit, 2) ?>
-                            </td>
-
-                            <td>
-
-                                <?php if ($isLow): ?>
-                                    <span class="badge badge-danger">Low Stock</span>
-                                <?php else: ?>
-                                    <span class="badge badge-success">OK</span>
-                                <?php endif; ?>
-
-                            </td>
-
-                        </tr>
-
-                    <?php endforeach; ?>
-
+                        <?php foreach ($products as $index => $product): ?>
+                            <?php
+                                $profit = $product->selling_price - $product->buying_price;
+                                $isLow = $product->stock_quantity <= $product->min_stock_alert;
+                            ?>
+                            <tr>
+                                <td class="mono text-muted"><?= $index + 1 ?></td>
+                                <td>
+                                    <div class="product-cell">
+                                        <div class="product-icon">
+                                            <i data-lucide="box" class="icon-16"></i>
+                                        </div>
+                                        <span class="product-name"><?= Html::encode($product->name) ?></span>
+                                    </div>
+                                </td>
+                                <td class="text-right mono">TZS <?= number_format($product->buying_price, 2) ?></td>
+                                <td class="text-right mono">TZS <?= number_format($product->selling_price, 2) ?></td>
+                                <td class="text-center">
+                                    <span class="badge <?= $isLow ? 'badge-danger' : 'badge-success' ?>">
+                                        <?= (int)$product->stock_quantity ?>
+                                    </span>
+                                </td>
+                                <td class="text-right mono">TZS <?= number_format($profit, 2) ?></td>
+                                <td class="text-center">
+                                    <?php if ($isLow): ?>
+                                        <span class="badge badge-danger">Low Stock</span>
+                                    <?php else: ?>
+                                        <span class="badge badge-success">In Stock</span>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
                     </tbody>
-
                 </table>
-
             </div>
 
         <?php else: ?>
 
-            <div class="empty">
-                No products found in this branch yet.
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i data-lucide="package" class="icon-48"></i>
+                </div>
+                <h3>No products found</h3>
+                <p>This branch doesn't have any products in inventory yet</p>
             </div>
 
         <?php endif; ?>
@@ -175,178 +163,24 @@ BACKGROUND (SAME AS SELLER DASHBOARD)
 
 </div>
 
-<!-- =========================
-UI STYLE (MATCH SELLER DASHBOARD EXACTLY)
-========================= -->
 <style>
-
-/* BODY */
-body{
-    margin:0;
-    font-family:'Segoe UI',sans-serif;
-    background:linear-gradient(135deg,#020617,#0f172a,#1e293b);
-    color:white;
+/* Same styles as low-stock.php + success badge */
+.badge-success {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+    font-weight: 600;
 }
 
-/* BLOBS */
-.background-blobs{
-    position:fixed;
-    width:100%;
-    height:100%;
-    z-index:-1;
+.stat-card.critical {
+    border-color: rgba(239, 68, 68, 0.3);
+    background: linear-gradient(135deg, var(--card-bg), rgba(239, 68, 68, 0.05));
 }
 
-.blob{
-    position:absolute;
-    border-radius:50%;
-    filter:blur(90px);
-    opacity:0.35;
-    animation:move 12s infinite alternate;
-}
-
-.blob1{
-    width:300px;height:300px;
-    background:#38bdf8;
-    top:-50px;left:-50px;
-}
-
-.blob2{
-    width:250px;height:250px;
-    background:#8b5cf6;
-    bottom:-50px;right:-50px;
-}
-
-@keyframes move{
-    from{transform:translateY(0px);}
-    to{transform:translateY(50px);}
-}
-
-/* WRAPPER */
-.page-wrapper{
-    padding:40px;
-}
-
-/* HEADER */
-.page-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:25px;
-    flex-wrap:wrap;
-    gap:10px;
-}
-
-.page-title{
-    font-size:32px;
-    font-weight:800;
-}
-
-.page-subtitle{
-    color:#94a3b8;
-    margin-top:6px;
-}
-
-/* BACK BUTTON */
-.back-btn{
-    padding:12px 18px;
-    background:rgba(255,255,255,0.08);
-    border:1px solid rgba(255,255,255,0.1);
-    border-radius:14px;
-    text-decoration:none;
-    color:white;
-    transition:0.3s;
-}
-
-.back-btn:hover{
-    transform:translateY(-3px);
-}
-
-/* SUMMARY */
-.summary-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:20px;
-    margin-bottom:30px;
-}
-
-.summary-card{
-    padding:22px;
-    border-radius:22px;
-    background:rgba(255,255,255,0.06);
-    border:1px solid rgba(255,255,255,0.08);
-    backdrop-filter:blur(18px);
-}
-
-.summary-value{
-    font-size:28px;
-    font-weight:800;
-    color:#38bdf8;
-}
-
-.summary-label{
-    color:#94a3b8;
-    margin-top:6px;
-}
-
-/* TABLE CARD */
-.table-card{
-    background:rgba(255,255,255,0.05);
-    border-radius:22px;
-    border:1px solid rgba(255,255,255,0.08);
-    overflow:hidden;
-    backdrop-filter:blur(18px);
-}
-
-/* HEADER */
-.table-header{
-    padding:18px;
-    font-size:18px;
-    font-weight:700;
-    border-bottom:1px solid rgba(255,255,255,0.08);
-}
-
-/* TABLE */
-.table-wrap{overflow:auto;}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-th,td{
-    padding:14px;
-    border-bottom:1px solid rgba(255,255,255,0.06);
-}
-
-thead{
-    background:rgba(255,255,255,0.04);
-}
-
-tbody tr:hover{
-    background:rgba(255,255,255,0.04);
-}
-
-/* BADGES */
-.badge{
-    padding:6px 10px;
-    border-radius:999px;
-    background:#38bdf8;
-    font-size:12px;
-}
-
-.badge-success{
-    background:#22c55e;
-}
-
-.badge-danger{
-    background:#ef4444;
-}
-
-/* EMPTY */
-.empty{
-    padding:60px;
-    text-align:center;
-    color:#94a3b8;
-}
-
+/* Same table and responsive styles */
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+});
+</script>

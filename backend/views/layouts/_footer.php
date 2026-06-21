@@ -9,81 +9,129 @@ declare(strict_types=1);
 <footer class="app-footer">
 
     <div class="footer-left">
-        © <?= date('Y') ?> Business Team Management System
+        <span class="footer-copyright">© <?= date('Y') ?> Business Team</span>
+        <span class="footer-separator">·</span>
+        <span class="footer-system">Management System</span>
     </div>
 
     <div class="footer-right">
-        Version 1.0.0
+        <span class="footer-version">v1.0.0</span>
+        <span class="footer-dot"></span>
+        <span class="footer-status">
+            <span class="status-indicator online"></span>
+            All systems operational
+        </span>
     </div>
 
 </footer>
 
 <style>
-
-/* =========================
-THEME VARIABLES
-========================= */
-
-:root{
-    --footer-bg: rgba(255,255,255,.03);
-    --border: rgba(255,255,255,.08);
-    --text-muted: #94a3b8;
-}
-
-/* LIGHT MODE SUPPORT */
-[data-bs-theme="light"]{
-    --footer-bg: rgba(255,255,255,.9);
-    --border: rgba(0,0,0,.08);
-    --text-muted: #475569;
-}
-
-/* =========================
-FOOTER BASE
-========================= */
-
-.app-footer{
-
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-
-    padding:14px 22px;
-
-    background: var(--footer-bg);
-    backdrop-filter: blur(14px);
-
+/* ============================================
+   FOOTER
+   ============================================ */
+.app-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    
+    height: 48px;
+    padding: 0 24px;
+    
+    background: var(--surface);
     border-top: 1px solid var(--border);
-
+    
+    font-size: 12px;
     color: var(--text-muted);
-
-    font-size:13px;
-
-    width:100%;
+    
+    flex-shrink: 0;
 }
 
-/* LEFT */
-.footer-left{
-    font-weight:500;
+.footer-left,
+.footer-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-/* RIGHT */
-.footer-right{
-    opacity:.85;
+.footer-copyright {
+    font-weight: 500;
+    color: var(--text-secondary);
 }
 
-/* =========================
-RESPONSIVE
-========================= */
+.footer-separator {
+    opacity: 0.5;
+}
 
-@media(max-width:768px){
+.footer-system {
+    font-weight: 400;
+}
 
-    .app-footer{
+.footer-version {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+}
 
-        flex-direction:column;
-        gap:6px;
+.footer-dot {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    opacity: 0.5;
+}
 
-        text-align:center;
+.footer-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+}
+
+.status-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    position: relative;
+}
+
+.status-indicator.online {
+    background: var(--success);
+}
+
+.status-indicator.online::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    border: 1px solid var(--success);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(2); opacity: 0; }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .app-footer {
+        flex-direction: column;
+        height: auto;
+        padding: 12px;
+        gap: 6px;
+        text-align: center;
+    }
+    .footer-right {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .footer-dot {
+        display: none;
     }
 }
-
 </style>

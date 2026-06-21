@@ -11,161 +11,235 @@ use yii\helpers\Url;
 $this->title = 'Create Seller';
 ?>
 
-<style>
+<div class="page-container narrow">
 
-/* ================= GLOBAL PAGE ================= */
-.page {
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 40px;
-    font-family: 'Segoe UI', sans-serif;
-    color: #fff;
-    background: linear-gradient(135deg, #020617, #0f172a, #1e293b);
-}
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="<?= Url::to(['/owner-seller/index']) ?>">
+            <i data-lucide="chevron-left" class="icon-16"></i>
+            Sellers
+        </a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">Create</span>
+    </nav>
 
-/* ================= CARD ================= */
-.card {
-    width: 100%;
-    max-width: 520px;
-    background: rgba(255, 255, 255, 0.06);
-    backdrop-filter: blur(18px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 22px;
-    padding: 30px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
-    transition: 0.3s ease;
-}
+    <!-- Form Card -->
+    <div class="form-card">
+        <div class="form-header">
+            <div class="form-icon">
+                <i data-lucide="user-plus" class="icon-24"></i>
+            </div>
+            <div>
+                <h1 class="form-title">Create Seller</h1>
+                <p class="form-subtitle">Add a new team member to your branch</p>
+            </div>
+        </div>
 
-.card:hover {
-    transform: translateY(-5px);
-}
+        <?php $form = ActiveForm::begin([
+            'options' => ['class' => 'form-body'],
+            'fieldConfig' => [
+                'template' => "{label}\n{input}\n{error}",
+                'inputOptions' => ['class' => 'form-control'],
+                'labelOptions' => ['class' => 'form-label'],
+                'errorOptions' => ['class' => 'form-error'],
+            ],
+        ]); ?>
 
-/* ================= TITLE ================= */
-.title {
-    font-size: 28px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    background: linear-gradient(to right, #38bdf8, #a78bfa, #c084fc);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
+            <div class="form-group">
+                <?= $form->field($model, 'username')
+                    ->textInput(['placeholder' => 'Enter username', 'autocomplete' => 'off'])
+                ?>
+            </div>
 
-/* ================= FORM ================= */
-.form-control {
-    width: 100%;
-    padding: 12px 14px;
-    margin-bottom: 15px;
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.15);
-    background: rgba(255,255,255,0.05);
-    color: white;
-    outline: none;
-    transition: 0.3s;
-}
+            <div class="form-group">
+                <?= $form->field($model, 'email')
+                    ->textInput(['placeholder' => 'Enter email address', 'autocomplete' => 'off', 'type' => 'email'])
+                ?>
+            </div>
 
-.form-control:focus {
-    border-color: #38bdf8;
-    box-shadow: 0 0 10px rgba(56,189,248,0.3);
-}
+            <div class="form-group">
+                <?= $form->field($model, 'password')
+                    ->passwordInput(['placeholder' => 'Create a secure password', 'autocomplete' => 'off'])
+                ?>
+            </div>
 
-/* ================= LABEL ================= */
-label {
-    display: block;
-    margin-bottom: 6px;
-    color: #cbd5e1;
-    font-size: 14px;
-}
+            <div class="form-group">
+                <?= $form->field($model, 'branch_id')
+                    ->dropDownList(
+                        ArrayHelper::map($branches, 'id', 'name'),
+                        ['prompt' => 'Select Branch', 'class' => 'form-control']
+                    )
+                ?>
+            </div>
 
-/* ================= BUTTON ================= */
-.btn {
-    width: 100%;
-    padding: 14px;
-    border-radius: 14px;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    color: white;
-    background: linear-gradient(135deg, #38bdf8, #6366f1);
-    transition: 0.3s ease;
-}
-
-.btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 15px 30px rgba(56,189,248,0.3);
-}
-
-/* ================= BACK LINK ================= */
-.back {
-    display: inline-block;
-    margin-top: 15px;
-    color: #94a3b8;
-    text-decoration: none;
-    font-size: 14px;
-}
-
-.back:hover {
-    color: #38bdf8;
-}
-
-</style>
-
-<div class="page">
-
-    <div class="card">
-
-        <div class="title">➕ Create Seller</div>
-
-        <?php $form = ActiveForm::begin(); ?>
-
-        <!-- Username -->
-        <?= $form->field($model, 'username')
-            ->textInput([
-                'class' => 'form-control',
-                'placeholder' => 'Enter username'
-            ])
-        ?>
-
-        <!-- Email -->
-        <?= $form->field($model, 'email')
-            ->textInput([
-                'class' => 'form-control',
-                'placeholder' => 'Enter email'
-            ])
-        ?>
-
-        <!-- Password -->
-        <?= $form->field($model, 'password')
-            ->passwordInput([
-                'class' => 'form-control',
-                'placeholder' => 'Enter password'
-            ])
-        ?>
-
-        <!-- Branch -->
-        <?= $form->field($model, 'branch_id')
-            ->dropDownList(
-                ArrayHelper::map($branches, 'id', 'name'),
-                [
-                    'prompt' => 'Select Branch',
-                    'class' => 'form-control'
-                ]
-            )
-        ?>
-
-        <!-- SUBMIT -->
-        <?= Html::submitButton('Save Seller', [
-            'class' => 'btn'
-        ]) ?>
+            <div class="form-actions">
+                <a href="<?= Url::to(['/owner-seller/index']) ?>" class="btn btn-secondary">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i data-lucide="check" class="icon-16"></i>
+                    Create Seller
+                </button>
+            </div>
 
         <?php ActiveForm::end(); ?>
-
-        <!-- BACK -->
-        <a href="<?= Url::to(['/owner-seller/index']) ?>" class="back">
-            ← Back to Sellers
-        </a>
-
     </div>
 
 </div>
+
+<style>
+/* Reuses shared form styles from business/create.php */
+.page-container.narrow {
+    max-width: 560px;
+    margin: 0 auto;
+    padding-top: 20px;
+}
+
+.form-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 32px;
+    margin-top: 24px;
+    position: relative;
+    overflow: hidden;
+}
+
+.form-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), #8b5cf6);
+}
+
+.form-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.form-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, var(--primary), #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 4px 12px var(--primary-glow);
+    flex-shrink: 0;
+}
+
+.form-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 4px 0;
+}
+
+.form-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.form-body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 2px;
+}
+
+.form-label::after {
+    content: ' *';
+    color: var(--danger);
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+.form-control::placeholder {
+    color: var(--text-muted);
+}
+
+select.form-control {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+}
+
+.form-error {
+    font-size: 12px;
+    color: var(--danger);
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.form-error::before {
+    content: '⚠';
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+    margin-top: 8px;
+}
+
+@media (max-width: 768px) {
+    .form-card {
+        padding: 20px;
+    }
+    .form-actions {
+        flex-direction: column;
+    }
+    .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+});
+</script>

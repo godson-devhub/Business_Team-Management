@@ -299,40 +299,6 @@ use yii\helpers\Html;
      NAVBAR
 ========================== -->
 
-<nav class="navbar-custom">
-
-    <div class="navbar-inner">
-
-        <a href="<?= Yii::$app->homeUrl ?>" class="brand">
-            BusinessFlow
-        </a>
-
-        <div class="nav-right">
-
-            <a href="<?= Yii::$app->homeUrl ?>" class="btn-login">
-                Home
-            </a>
-
-            <a href="http://localhost/business-system/backend/web/login"
-               class="btn-login">
-                Login
-            </a>
-
-            <a href="http://localhost/business-system/backend/web/signup"
-               class="btn-signup">
-                Sign Up
-            </a>
-
-            <button onclick="toggleTheme()"
-                    class="theme-btn">
-                🌙
-            </button>
-
-        </div>
-
-    </div>
-
-</nav>
 
 <!-- ==========================
      CONTENT
@@ -360,27 +326,6 @@ use yii\helpers\Html;
      FOOTER
 ========================== -->
 
-<footer>
-
-    <div>
-        © <?= date('Y') ?> BusinessFlow Management System
-    </div>
-
-    <div class="footer-social">
-
-        WhatsApp: 0620871857<br>
-
-        email:mshiugodson@gmail.com<br>
-
-        Instagram: @itc_melody_99<br>
-
-        TikTok: @itc_melody<br>
-
-        YouTube: itc_melody
-
-    </div>
-
-</footer>
 
 <script>
 

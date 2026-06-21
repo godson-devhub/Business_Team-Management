@@ -253,9 +253,6 @@ RESPONSIVE
 
       
 
-        <div class="login-title">
-            Business Workflow & Team Management System
-        </div>
 
         <div class="login-subtitle">
             Sign in to continue

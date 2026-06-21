@@ -1,255 +1,151 @@
 <?php
 
-use yii\helpers\Html;
-use yii\widgets\ActiveForm;
-
 /** @var $model common\models\Product */
 
-$this->title = 'Update Product';
+$this->title = 'Update ' . htmlspecialchars((string)$model->name);
 ?>
 
-<!-- =========================
-BACKGROUND (SAME AS CREATE)
-========================= -->
-<div class="background-blobs">
-    <div class="blob blob1"></div>
-    <div class="blob blob2"></div>
-</div>
+<div class="page-container narrow">
 
-<!-- =========================
-PAGE WRAPPER
-========================= -->
-<div class="page-wrapper">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="/product/index">
+            <i data-lucide="chevron-left" class="icon-16"></i>
+            Products
+        </a>
+        <span class="breadcrumb-separator">/</span>
+        <a href="/product/view?id=<?= (int)$model->id ?>">
+            <?= htmlspecialchars((string)$model->name) ?>
+        </a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">Edit</span>
+    </nav>
 
-    <div class="glass-card">
-
-        <div class="title">✏️ Update Product</div>
-        <div class="subtitle">Edit product details in your inventory</div>
-
-        <?php $form = ActiveForm::begin([
-            'id' => 'product-update-form',
-        ]); ?>
-
-        <!-- PRODUCT NAME -->
-        <div class="form-group">
-            <?= $form->field($model, 'name')
-                ->textInput([
-                    'class' => 'input',
-                    'placeholder' => 'Product name'
-                ])
-                ->label('Product Name') ?>
+    <!-- Form Card -->
+    <div class="form-card">
+        <div class="form-header">
+            <div class="form-icon" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">
+                <i data-lucide="pencil" class="icon-24"></i>
+            </div>
+            <div>
+                <h1 class="form-title">Update Product</h1>
+                <p class="form-subtitle">Edit <?= htmlspecialchars((string)$model->name) ?> details</p>
+            </div>
         </div>
 
-        <!-- BUYING PRICE -->
-        <div class="form-group">
-            <?= $form->field($model, 'buying_price')
-                ->textInput([
-                    'type' => 'number',
-                    'step' => '0.01',
-                    'class' => 'input'
-                ])
-                ->label('Buying Price') ?>
+        <!-- Product Info Card -->
+        <div class="info-card">
+            <div class="info-icon">
+                <i data-lucide="box" class="icon-24"></i>
+            </div>
+            <div class="info-details">
+                <div class="info-title"><?= htmlspecialchars((string)$model->name) ?></div>
+                <div class="info-meta">
+                    <span class="meta-item">
+                        <i data-lucide="tag" class="icon-14"></i>
+                        SKU: <?= htmlspecialchars((string)($model->sku ?? 'N/A')) ?>
+                    </span>
+                    <span class="meta-item">
+                        <i data-lucide="layers" class="icon-14"></i>
+                        Stock: <?= (int)$model->stock_quantity ?>
+                    </span>
+                    <span class="meta-item">
+                        <i data-lucide="circle-dollar-sign" class="icon-14"></i>
+                        Sell: TZS <?= number_format((float)$model->selling_price, 2) ?>
+                    </span>
+                </div>
+            </div>
         </div>
 
-        <!-- SELLING PRICE -->
-        <div class="form-group">
-            <?= $form->field($model, 'selling_price')
-                ->textInput([
-                    'type' => 'number',
-                    'step' => '0.01',
-                    'class' => 'input'
-                ])
-                ->label('Selling Price') ?>
-        </div>
-
-        <!-- STOCK -->
-        <div class="form-group">
-            <?= $form->field($model, 'stock_quantity')
-                ->textInput([
-                    'type' => 'number',
-                    'min' => 0,
-                    'class' => 'input'
-                ])
-                ->label('Stock Quantity') ?>
-        </div>
-
-        <!-- MIN STOCK ALERT -->
-        <div class="form-group">
-            <?= $form->field($model, 'min_stock_alert')
-                ->textInput([
-                    'type' => 'number',
-                    'min' => 0,
-                    'class' => 'input'
-                ])
-                ->label('Low Stock Alert') ?>
-        </div>
-
-        <!-- SKU -->
-        <div class="form-group">
-            <?= $form->field($model, 'sku')
-                ->textInput([
-                    'class' => 'input'
-                ])
-                ->label('SKU') ?>
-        </div>
-
-        <!-- STATUS -->
-        <div class="form-group">
-            <?= $form->field($model, 'status')
-                ->dropDownList([
-                    1 => 'Active',
-                    0 => 'Inactive'
-                ], [
-                    'class' => 'input'
-                ])
-                ->label('Status') ?>
-        </div>
-
-        <!-- BUTTON -->
-        <div class="form-group">
-            <?= Html::submitButton('💾 Update Product', [
-                'class' => 'btn'
+        <div class="form-wrapper">
+            <?= $this->render('_form', [
+                'model' => $model
             ]) ?>
         </div>
-
-        <?php ActiveForm::end(); ?>
-
     </div>
 
 </div>
 
-<!-- =========================
-STYLE (SAME AS CREATE FOR CONSISTENCY)
-========================= -->
 <style>
-
-body{
-    margin:0;
-    padding:0;
-    font-family:'Segoe UI',sans-serif;
-    background:linear-gradient(135deg,#020617,#0f172a,#1e293b);
-    color:white;
+/* Reuses create.php styles + update-specific overrides */
+.form-card::before {
+    background: linear-gradient(90deg, #f59e0b, #ef4444);
 }
 
-/* BACKGROUND BLOBS */
-.background-blobs{
-    position:fixed;
-    width:100%;
-    height:100%;
-    z-index:-1;
-    overflow:hidden;
+/* ============================================
+   INFO CARD
+   ============================================ */
+.info-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    margin-bottom: 28px;
+    border-radius: var(--radius-lg);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
 }
 
-.blob{
-    position:absolute;
-    border-radius:50%;
-    filter:blur(90px);
-    opacity:0.35;
+.info-card:hover {
+    background: var(--surface-hover);
 }
 
-.blob1{
-    width:320px;
-    height:320px;
-    background:#38bdf8;
-    top:-60px;
-    left:-60px;
+.info-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, var(--primary), #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
 }
 
-.blob2{
-    width:280px;
-    height:280px;
-    background:#8b5cf6;
-    bottom:-60px;
-    right:-60px;
+.info-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
-/* PAGE */
-.page-wrapper{
-    display:flex;
-    justify-content:center;
-    padding:40px;
+.info-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
 }
 
-/* GLASS CARD */
-.glass-card{
-    width:100%;
-    max-width:600px;
-    background:rgba(255,255,255,0.07);
-    border:1px solid rgba(255,255,255,0.15);
-    backdrop-filter:blur(18px);
-    border-radius:25px;
-    padding:35px;
-    box-shadow:0 10px 40px rgba(0,0,0,0.4);
+.info-meta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
 }
 
-/* TITLE */
-.title{
-    font-size:30px;
-    font-weight:bold;
-    background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc);
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--text-muted);
 }
 
-.subtitle{
-    color:#94a3b8;
-    margin-bottom:25px;
-    font-size:14px;
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .form-card {
+        padding: 20px;
+    }
+    .info-meta {
+        flex-direction: column;
+        gap: 4px;
+    }
 }
-
-/* FORM */
-.form-group{
-    margin-bottom:18px;
-}
-
-/* INPUT */
-.input,
-input,
-select{
-    width:100%;
-    padding:14px;
-    border-radius:14px;
-    border:none;
-    outline:none;
-    background:rgba(255,255,255,0.08);
-    color:white;
-    font-size:14px;
-    transition:0.3s;
-}
-
-.input:focus,
-input:focus,
-select:focus{
-    background:rgba(255,255,255,0.15);
-    transform:scale(1.02);
-    box-shadow:0 0 15px rgba(56,189,248,0.3);
-}
-
-/* LABEL */
-label{
-    color:#cbd5e1;
-    font-size:13px;
-    margin-bottom:6px;
-    display:block;
-}
-
-/* BUTTON */
-.btn{
-    width:100%;
-    padding:15px;
-    border:none;
-    border-radius:14px;
-    background:linear-gradient(135deg,#f59e0b,#6366f1,#8b5cf6);
-    color:white;
-    font-size:15px;
-    font-weight:bold;
-    cursor:pointer;
-    transition:0.3s;
-}
-
-.btn:hover{
-    transform:translateY(-4px);
-    box-shadow:0 12px 30px rgba(99,102,241,0.4);
-}
-
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+});
+</script>

@@ -4,338 +4,175 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 
 $this->title = 'Create Product';
-
 ?>
 
-<div class="background-blobs">
+<div class="page-container narrow">
 
-    <div class="blob blob1"></div>
-    <div class="blob blob2"></div>
-    <div class="blob blob3"></div>
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="<?= Url::to(['/owner-product/index']) ?>">
+            <i data-lucide="chevron-left" class="icon-16"></i>
+            Products
+        </a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">Create</span>
+    </nav>
 
-</div>
-
-<div class="page-wrapper">
-
-    <div class="create-container">
-
-        <div class="glass-card">
-
-            <div class="header-top">
-
-                <a
-                    href="<?= Url::to(['/owner-product/index']) ?>"
-                    class="back-btn"
-                >
-                    ← Back Products
-                </a>
-
+    <!-- Form Card -->
+    <div class="form-card">
+        <div class="form-header">
+            <div class="form-icon">
+                <i data-lucide="package-plus" class="icon-24"></i>
             </div>
-
-            <div class="hero-section">
-
-                <div class="badge-live">
-
-                    OWNER PRODUCT MANAGER
-
-                </div>
-
-                <h1 class="title">
-
-                    📦 Create New Product
-
-                </h1>
-
-                <p class="subtitle">
-
-                    Add inventory to the selected branch
-                    and manage stock professionally.
-
-                </p>
-
+            <div>
+                <h1 class="form-title">Create Product</h1>
+                <p class="form-subtitle">Add new inventory to your branch</p>
             </div>
-
-            <div class="feature-grid">
-
-                <div class="feature-card">
-
-                    <div class="icon">
-                        📊
-                    </div>
-
-                    <h4>
-                        Inventory Tracking
-                    </h4>
-
-                </div>
-
-                <div class="feature-card">
-
-                    <div class="icon">
-                        💰
-                    </div>
-
-                    <h4>
-                        Profit Monitoring
-                    </h4>
-
-                </div>
-
-                <div class="feature-card">
-
-                    <div class="icon">
-                        ⚡
-                    </div>
-
-                    <h4>
-                        Fast Management
-                    </h4>
-
-                </div>
-
-            </div>
-
-            <div class="form-wrapper">
-
-                <?= $this->render('_form', [
-                    'model' => $model
-                ]) ?>
-
-            </div>
-
         </div>
 
+        <!-- Feature Highlights -->
+        <div class="feature-row">
+            <div class="feature-pill">
+                <i data-lucide="bar-chart-3" class="icon-14"></i>
+                Inventory Tracking
+            </div>
+            <div class="feature-pill">
+                <i data-lucide="trending-up" class="icon-14"></i>
+                Profit Monitoring
+            </div>
+            <div class="feature-pill">
+                <i data-lucide="zap" class="icon-14"></i>
+                Fast Management
+            </div>
+        </div>
+
+        <div class="form-wrapper">
+            <?= $this->render('_form', [
+                'model' => $model
+            ]) ?>
+        </div>
     </div>
 
 </div>
 
 <style>
-
-body{
-    background:
-    linear-gradient(
-    135deg,
-    #020617,
-    #0f172a,
-    #1e293b
-    );
+/* ============================================
+   NARROW CONTAINER
+   ============================================ */
+.page-container.narrow {
+    max-width: 720px;
+    margin: 0 auto;
+    padding-top: 20px;
 }
 
-/* BLOBS */
-
-.background-blobs{
-    position:fixed;
-    inset:0;
-    z-index:-1;
+/* ============================================
+   FORM CARD
+   ============================================ */
+.form-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 32px;
+    margin-top: 24px;
+    position: relative;
+    overflow: hidden;
 }
 
-.blob{
-    position:absolute;
-    border-radius:50%;
-    filter:blur(100px);
-    opacity:.25;
+.form-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), #8b5cf6);
 }
 
-.blob1{
-    width:350px;
-    height:350px;
-    background:#38bdf8;
-    left:-100px;
-    top:-100px;
+.form-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
 }
 
-.blob2{
-    width:300px;
-    height:300px;
-    background:#8b5cf6;
-    right:-100px;
-    bottom:-100px;
+.form-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, var(--primary), #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 4px 12px var(--primary-glow);
+    flex-shrink: 0;
 }
 
-.blob3{
-    width:250px;
-    height:250px;
-    background:#22c55e;
-    top:40%;
-    left:50%;
+.form-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 4px 0;
 }
 
-/* PAGE */
-
-.page-wrapper{
-    padding:40px;
+.form-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 0;
 }
 
-.create-container{
-    max-width:1100px;
-    margin:auto;
+/* ============================================
+   FEATURE ROW
+   ============================================ */
+.feature-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
 }
 
-/* CARD */
-
-.glass-card{
-
-    background:
-    rgba(255,255,255,.06);
-
-    backdrop-filter:
-    blur(20px);
-
-    border:
-    1px solid rgba(255,255,255,.1);
-
-    border-radius:30px;
-
-    padding:35px;
-
-    box-shadow:
-    0 20px 60px rgba(0,0,0,.35);
+.feature-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
 }
 
-/* BACK */
-
-.back-btn{
-
-    display:inline-block;
-
-    color:white;
-
-    text-decoration:none;
-
-    padding:10px 18px;
-
-    border-radius:12px;
-
-    background:
-    rgba(255,255,255,.08);
-
-    transition:.3s;
+.feature-pill i {
+    color: var(--primary);
 }
 
-.back-btn:hover{
-
-    transform:
-    translateY(-3px);
-
-    color:white;
+/* ============================================
+   FORM WRAPPER
+   ============================================ */
+.form-wrapper {
+    margin-top: 8px;
 }
 
-/* HERO */
-
-.hero-section{
-    text-align:center;
-    margin-top:25px;
-}
-
-.badge-live{
-
-    display:inline-block;
-
-    padding:8px 16px;
-
-    border-radius:999px;
-
-    background:
-    rgba(34,197,94,.15);
-
-    border:
-    1px solid rgba(34,197,94,.25);
-
-    color:#86efac;
-
-    margin-bottom:20px;
-}
-
-.title{
-
-    font-size:42px;
-
-    font-weight:800;
-
-    background:
-    linear-gradient(
-    90deg,
-    #38bdf8,
-    #818cf8,
-    #c084fc
-    );
-
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
-}
-
-.subtitle{
-
-    color:#94a3b8;
-
-    max-width:700px;
-
-    margin:auto;
-
-    margin-top:10px;
-}
-
-/* FEATURES */
-
-.feature-grid{
-
-    display:grid;
-
-    grid-template-columns:
-    repeat(3,1fr);
-
-    gap:20px;
-
-    margin-top:35px;
-}
-
-.feature-card{
-
-    background:
-    rgba(255,255,255,.05);
-
-    border:
-    1px solid rgba(255,255,255,.08);
-
-    border-radius:20px;
-
-    padding:20px;
-
-    text-align:center;
-
-    transition:.3s;
-}
-
-.feature-card:hover{
-
-    transform:
-    translateY(-6px);
-
-    background:
-    rgba(255,255,255,.08);
-}
-
-.icon{
-    font-size:32px;
-    margin-bottom:10px;
-}
-
-/* FORM */
-
-.form-wrapper{
-    margin-top:35px;
-}
-
-@media(max-width:768px){
-
-    .feature-grid{
-        grid-template-columns:1fr;
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .form-card {
+        padding: 20px;
     }
-
-    .title{
-        font-size:32px;
+    .feature-row {
+        flex-direction: column;
     }
-
+    .feature-pill {
+        justify-content: center;
+    }
 }
-
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+});
+</script>

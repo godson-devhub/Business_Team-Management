@@ -8,325 +8,151 @@ use yii\helpers\Url;
  * @var \common\models\PurchaseItem[] $purchases
  */
 
-$this->title = $branch->name . ' Purchases (Items-Based)';
-
-/* =========================
-   SUMMARY CALCULATIONS
-========================= */
+$this->title = $branch->name . ' Purchases';
 
 $totalItems = count($purchases);
 $totalQty = 0;
 $totalValue = 0;
-
 $todayQty = 0;
 $todayValue = 0;
 
 $todayStart = strtotime('today');
-$todayEnd   = strtotime('tomorrow');
+$todayEnd = strtotime('tomorrow');
 
 foreach ($purchases as $item) {
-
     $lineTotal = $item->quantity * $item->buying_price;
-
-    $totalQty   += $item->quantity;
+    $totalQty += $item->quantity;
     $totalValue += $lineTotal;
 
     $createdAt = $item->purchase->created_at ?? 0;
-
     if ($createdAt >= $todayStart && $createdAt < $todayEnd) {
-
         $todayQty += $item->quantity;
         $todayValue += $lineTotal;
     }
 }
-
 ?>
 
-<style>
+<div class="page-container">
 
-/* =========================
-GLOBAL
-========================= */
-
-body{
-    background: radial-gradient(circle at top,#0f172a,#020617);
-    color:white;
-    font-family:'Segoe UI',sans-serif;
-}
-
-/* =========================
-PAGE WRAPPER
-========================= */
-
-.page-wrapper{
-    padding:40px;
-}
-
-/* =========================
-HEADER
-========================= */
-
-.page-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    flex-wrap:wrap;
-    gap:15px;
-    margin-bottom:30px;
-}
-
-.page-title{
-    font-size:34px;
-    font-weight:800;
-}
-
-.page-subtitle{
-    color:#94a3b8;
-    margin-top:6px;
-}
-
-.back-btn{
-    padding:12px 18px;
-    border-radius:14px;
-    text-decoration:none;
-    color:white;
-    background:rgba(255,255,255,.08);
-    border:1px solid rgba(255,255,255,.08);
-    backdrop-filter:blur(20px);
-    transition:.3s;
-}
-
-.back-btn:hover{
-    transform:translateY(-4px);
-    background:rgba(255,255,255,.15);
-}
-
-/* =========================
-SUMMARY
-========================= */
-
-.summary-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:20px;
-    margin-bottom:30px;
-}
-
-.summary-card{
-    padding:24px;
-    border-radius:24px;
-    background:rgba(255,255,255,.06);
-    border:1px solid rgba(255,255,255,.08);
-    backdrop-filter:blur(18px);
-    transition:.3s;
-}
-
-.summary-card:hover{
-    transform:translateY(-6px);
-    background:rgba(255,255,255,.10);
-}
-
-.summary-value{
-    font-size:28px;
-    font-weight:800;
-    color:#38bdf8;
-}
-
-.summary-label{
-    margin-top:8px;
-    color:#94a3b8;
-}
-
-/* =========================
-TABLE
-========================= */
-
-.table-card{
-    background:rgba(255,255,255,.05);
-    border:1px solid rgba(255,255,255,.08);
-    border-radius:24px;
-    overflow:hidden;
-    backdrop-filter:blur(20px);
-}
-
-.table-header{
-    padding:20px;
-    font-size:20px;
-    font-weight:700;
-    border-bottom:1px solid rgba(255,255,255,.08);
-}
-
-.table-wrap{
-    overflow:auto;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-thead{
-    background:rgba(255,255,255,.04);
-}
-
-th{
-    padding:18px;
-    text-align:left;
-    color:#cbd5e1;
-    font-size:13px;
-    text-transform:uppercase;
-}
-
-td{
-    padding:18px;
-    border-top:1px solid rgba(255,255,255,.05);
-}
-
-tbody tr:hover{
-    background:rgba(255,255,255,.05);
-}
-
-.badge{
-    padding:6px 12px;
-    border-radius:999px;
-    font-size:12px;
-    background:#22c55e;
-}
-
-/* =========================
-EMPTY
-========================= */
-
-.empty{
-    text-align:center;
-    padding:60px;
-    color:#94a3b8;
-}
-
-</style>
-
-<div class="page-wrapper">
-
-    <!-- HEADER -->
-
-    <div class="page-header">
-
-        <div>
-            <div class="page-title">
-                🛒 Purchases (Items View)
-            </div>
-
-            <div class="page-subtitle">
-                <?= Html::encode($branch->name) ?>
-            </div>
-        </div>
-
-        <a href="<?= Url::to(['view','id'=>$branch->id]) ?>"
-           class="back-btn">
-            ← Back Dashboard
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="<?= Url::to(['branch/view', 'id' => $branch->id]) ?>">
+            <i data-lucide="chevron-left" class="icon-16"></i>
+            <?= Html::encode($branch->name) ?>
         </a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">Purchases</span>
+    </nav>
 
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Purchase History</h1>
+            <p class="page-subtitle">All purchase transactions for this branch</p>
+        </div>
     </div>
 
-    <!-- SUMMARY -->
-
-    <div class="summary-grid">
-
-        <div class="summary-card">
-            <div class="summary-value"><?= number_format($totalItems) ?></div>
-            <div class="summary-label">Total Items</div>
+    <!-- Summary Cards -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(99,102,241,0.15); color: #6366f1;">
+                <i data-lucide="shopping-cart" class="icon-20"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value"><?= number_format($totalItems) ?></div>
+                <div class="stat-label">Total Items</div>
+            </div>
         </div>
-
-        <div class="summary-card">
-            <div class="summary-value"><?= number_format($totalQty) ?></div>
-            <div class="summary-label">Total Quantity Bought</div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(59,130,246,0.15); color: #3b82f6;">
+                <i data-lucide="layers" class="icon-20"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value"><?= number_format($totalQty) ?></div>
+                <div class="stat-label">Total Quantity</div>
+            </div>
         </div>
-
-        <div class="summary-card">
-            <div class="summary-value">TZS <?= number_format($totalValue) ?></div>
-            <div class="summary-label">Total Purchase Value</div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(139,92,246,0.15); color: #8b5cf6;">
+                <i data-lucide="banknote" class="icon-20"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value">TZS <?= number_format($totalValue) ?></div>
+                <div class="stat-label">Total Value</div>
+            </div>
         </div>
-
-        <div class="summary-card">
-            <div class="summary-value">TZS <?= number_format($todayValue) ?></div>
-            <div class="summary-label">Today's Purchase Value</div>
+        <div class="stat-card highlight">
+            <div class="stat-icon" style="background: rgba(6,182,212,0.15); color: #06b6d4;">
+                <i data-lucide="calendar" class="icon-20"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value" style="color: #06b6d4;">TZS <?= number_format($todayValue) ?></div>
+                <div class="stat-label">Today's Value</div>
+            </div>
         </div>
-
     </div>
 
-    <!-- TABLE -->
-
-    <div class="table-card">
-
-        <div class="table-header">
-            Purchase Items
+    <!-- Data Table -->
+    <div class="data-card">
+        <div class="data-header">
+            <h3 class="data-title">
+                <i data-lucide="shopping-bag" class="icon-18"></i>
+                Purchase Items
+            </h3>
+            <span class="data-count"><?= $totalItems ?> records</span>
         </div>
 
         <?php if (!empty($purchases)): ?>
 
-            <div class="table-wrap">
-
-                <table>
-
+            <div class="table-responsive">
+                <table class="data-table">
                     <thead>
                         <tr>
                             <th>Product</th>
-                            <th>Qty</th>
-                            <th>Buying Price</th>
-                            <th>Total</th>
-                            <th>Purchase ID</th>
+                            <th class="text-center">Qty</th>
+                            <th class="text-right">Buy Price</th>
+                            <th class="text-right">Total</th>
+                            <th class="text-center">Purchase ID</th>
                             <th>Date</th>
                         </tr>
                     </thead>
-
                     <tbody>
-
-                    <?php foreach ($purchases as $item): ?>
-
-                        <?php
-                            $total = $item->quantity * $item->buying_price;
-                        ?>
-
-                        <tr>
-
-                            <td>
-                                <?= Html::encode($item->product->name ?? 'N/A') ?>
-                            </td>
-
-                            <td>
-                                <?= $item->quantity ?>
-                            </td>
-
-                            <td>
-                                TZS <?= number_format($item->buying_price) ?>
-                            </td>
-
-                            <td>
-                                TZS <?= number_format($total) ?>
-                            </td>
-
-                            <td>
-                                #<?= $item->purchase_id ?>
-                            </td>
-
-                            <td>
-                                <?= date('d M Y H:i', $item->purchase->created_at ?? time()) ?>
-                            </td>
-
-                        </tr>
-
-                    <?php endforeach; ?>
-
+                        <?php foreach ($purchases as $item): ?>
+                            <?php $total = $item->quantity * $item->buying_price; ?>
+                            <tr>
+                                <td>
+                                    <div class="product-cell">
+                                        <div class="product-icon">
+                                            <i data-lucide="box" class="icon-16"></i>
+                                        </div>
+                                        <span class="product-name"><?= Html::encode($item->product->name ?? 'N/A') ?></span>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge badge-info"><?= $item->quantity ?></span>
+                                </td>
+                                <td class="text-right mono">TZS <?= number_format($item->buying_price) ?></td>
+                                <td class="text-right mono">TZS <?= number_format($total) ?></td>
+                                <td class="text-center">
+                                    <span class="mono text-muted">#<?= $item->purchase_id ?></span>
+                                </td>
+                                <td class="text-muted">
+                                    <?= date('d M Y H:i', $item->purchase->created_at ?? time()) ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
                     </tbody>
-
                 </table>
-
             </div>
 
         <?php else: ?>
 
-            <div class="empty">
-                🛒 No purchase items found
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i data-lucide="shopping-cart" class="icon-48"></i>
+                </div>
+                <h3>No purchases found</h3>
+                <p>No purchase records exist for this branch</p>
             </div>
 
         <?php endif; ?>
@@ -334,3 +160,17 @@ EMPTY
     </div>
 
 </div>
+
+<style>
+/* Same table and card styles as daily-profit */
+.stat-card.highlight {
+    border-color: rgba(6, 182, 212, 0.3);
+    background: linear-gradient(135deg, var(--card-bg), rgba(6, 182, 212, 0.05));
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+});
+</script>

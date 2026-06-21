@@ -1,315 +1,81 @@
 <?php
 
 use yii\helpers\Html;
+use yii\helpers\Url;
 
 /**
  * @var \common\models\Branch $branch
  * @var \common\models\User[] $sellers
  */
 
-$this->title = $branch->name . ' - Sellers';
+$this->title = $branch->name . ' Sellers';
 
 $totalSellers = count($sellers);
 ?>
 
-<style>
+<div class="page-container">
 
-body{
-    background:
-        radial-gradient(circle at top,#0f172a,#020617);
-    color:white;
-    font-family:'Segoe UI',sans-serif;
-}
-
-/* =========================
-PAGE
-========================= */
-
-.page-wrapper{
-    padding:40px;
-}
-
-/* =========================
-HEADER
-========================= */
-
-.page-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:25px;
-    flex-wrap:wrap;
-    gap:15px;
-}
-
-.page-title{
-    font-size:32px;
-    font-weight:800;
-}
-
-.page-subtitle{
-    color:#94a3b8;
-    margin-top:6px;
-}
-
-.back-btn{
-    text-decoration:none;
-    color:white;
-    padding:12px 18px;
-    border-radius:14px;
-
-    background:rgba(255,255,255,0.08);
-    border:1px solid rgba(255,255,255,0.1);
-
-    backdrop-filter:blur(15px);
-
-    transition:.3s;
-}
-
-.back-btn:hover{
-    color:white;
-    transform:translateY(-3px);
-    background:rgba(255,255,255,0.15);
-}
-
-/* =========================
-SUMMARY CARD
-========================= */
-
-.summary-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:20px;
-    margin-bottom:30px;
-}
-
-.summary-card{
-    padding:24px;
-    border-radius:24px;
-
-    background:rgba(255,255,255,0.06);
-    border:1px solid rgba(255,255,255,0.08);
-
-    backdrop-filter:blur(18px);
-
-    transition:.3s;
-}
-
-.summary-card:hover{
-    transform:translateY(-6px);
-    background:rgba(255,255,255,0.09);
-}
-
-.summary-value{
-    font-size:34px;
-    font-weight:800;
-    color:#38bdf8;
-}
-
-.summary-label{
-    color:#94a3b8;
-    margin-top:8px;
-}
-
-/* =========================
-TABLE CARD
-========================= */
-
-.table-card{
-    background:rgba(255,255,255,0.05);
-    border:1px solid rgba(255,255,255,0.08);
-
-    backdrop-filter:blur(18px);
-
-    border-radius:24px;
-    overflow:hidden;
-}
-
-.table-header{
-    padding:20px 25px;
-    border-bottom:1px solid rgba(255,255,255,0.08);
-
-    font-size:20px;
-    font-weight:700;
-}
-
-/* =========================
-TABLE
-========================= */
-
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-thead{
-    background:rgba(255,255,255,0.04);
-}
-
-th{
-    text-align:left;
-    padding:18px;
-    color:#cbd5e1;
-    font-size:13px;
-    text-transform:uppercase;
-    letter-spacing:1px;
-}
-
-td{
-    padding:18px;
-    border-top:1px solid rgba(255,255,255,0.05);
-}
-
-tbody tr{
-    transition:.3s;
-}
-
-tbody tr:hover{
-    background:rgba(255,255,255,0.06);
-}
-
-/* =========================
-BADGES
-========================= */
-
-.badge{
-    padding:6px 12px;
-    border-radius:999px;
-    font-size:12px;
-    font-weight:600;
-}
-
-.badge-success{
-    background:#22c55e;
-    color:white;
-}
-
-/* =========================
-EMPTY
-========================= */
-
-.empty{
-    text-align:center;
-    padding:50px;
-    color:#94a3b8;
-}
-
-/* =========================
-RESPONSIVE
-========================= */
-
-@media(max-width:768px){
-
-    .page-wrapper{
-        padding:20px;
-    }
-
-    table{
-        display:block;
-        overflow-x:auto;
-    }
-
-    .page-title{
-        font-size:26px;
-    }
-}
-
-</style>
-
-<div class="page-wrapper">
-
-    <!-- HEADER -->
-    <div class="page-header">
-
-        <div>
-
-            <div class="page-title">
-                👥 Branch Sellers
-            </div>
-
-            <div class="page-subtitle">
-                <?= Html::encode($branch->name) ?>
-            </div>
-
-        </div>
-
-        <a href="<?= \yii\helpers\Url::to(['view','id'=>$branch->id]) ?>"
-           class="back-btn">
-            ← Back Dashboard
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="<?= Url::to(['branch/view', 'id' => $branch->id]) ?>">
+            <i data-lucide="chevron-left" class="icon-16"></i>
+            <?= Html::encode($branch->name) ?>
         </a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">Sellers</span>
+    </nav>
 
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Sellers</h1>
+            <p class="page-subtitle">Team members assigned to this branch</p>
+        </div>
+        <div class="stat-pill">
+            <i data-lucide="users" class="icon-14"></i>
+            <?= $totalSellers ?> member<?= $totalSellers !== 1 ? 's' : '' ?>
+        </div>
     </div>
 
-    <!-- SUMMARY -->
-    <div class="summary-grid">
+    <!-- Sellers Grid -->
+    <div class="sellers-grid">
 
-        <div class="summary-card">
+        <?php foreach ($sellers as $seller): ?>
 
-            <div class="summary-value">
-                <?= $totalSellers ?>
+            <div class="seller-card">
+                <div class="seller-avatar">
+                    <?= strtoupper(substr($seller->username, 0, 1)) ?>
+                </div>
+                <div class="seller-info">
+                    <h3 class="seller-name"><?= Html::encode($seller->username) ?></h3>
+                    <div class="seller-role">
+                        <span class="role-badge">Seller</span>
+                    </div>
+                    <?php if ($seller->email): ?>
+                        <div class="seller-email">
+                            <i data-lucide="mail" class="icon-14"></i>
+                            <?= Html::encode($seller->email) ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <div class="seller-status">
+                    <span class="status-badge active">
+                        <span class="status-dot online"></span>
+                        Active
+                    </span>
+                </div>
             </div>
 
-            <div class="summary-label">
-                Total Sellers
-            </div>
+        <?php endforeach; ?>
 
-        </div>
+        <?php if (empty($sellers)): ?>
 
-    </div>
-
-    <!-- TABLE -->
-    <div class="table-card">
-
-        <div class="table-header">
-            Seller List
-        </div>
-
-        <?php if (!empty($sellers)): ?>
-
-            <table>
-
-                <thead>
-
-                    <tr>
-                        <th>#</th>
-                        <th>Username</th>
-                        <th>Status</th>
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                <?php foreach ($sellers as $index => $seller): ?>
-
-                    <tr>
-
-                        <td>
-                            <?= $index + 1 ?>
-                        </td>
-
-                        <td>
-                            <?= Html::encode($seller->username) ?>
-                        </td>
-
-                        <td>
-                            <span class="badge badge-success">
-                                Active
-                            </span>
-                        </td>
-
-                    </tr>
-
-                <?php endforeach; ?>
-
-                </tbody>
-
-            </table>
-
-        <?php else: ?>
-
-            <div class="empty">
-                No sellers found in this branch.
+            <div class="empty-state" style="grid-column: 1 / -1;">
+                <div class="empty-icon">
+                    <i data-lucide="users" class="icon-48"></i>
+                </div>
+                <h3>No sellers assigned</h3>
+                <p>This branch doesn't have any sellers yet</p>
             </div>
 
         <?php endif; ?>
@@ -317,3 +83,160 @@ RESPONSIVE
     </div>
 
 </div>
+
+<style>
+/* ============================================
+   STAT PILL
+   ============================================ */
+.stat-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: var(--radius-lg);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+/* ============================================
+   SELLERS GRID
+   ============================================ */
+.sellers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+}
+
+/* ============================================
+   SELLER CARD
+   ============================================ */
+.seller-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    transition: all 0.25s ease;
+}
+
+.seller-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+    border-color: var(--border-strong);
+}
+
+.seller-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px var(--primary-glow);
+}
+
+.seller-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.seller-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+}
+
+.seller-role {
+    display: flex;
+    align-items: center;
+}
+
+.role-badge {
+    padding: 2px 10px;
+    border-radius: 20px;
+    background: var(--primary-glow);
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.seller-email {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.seller-status {
+    flex-shrink: 0;
+}
+
+.status-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-badge.active {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    color: var(--success);
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+    position: relative;
+}
+
+.status-dot.online::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    border: 1px solid var(--success);
+    animation: pulse-ring 2s infinite;
+}
+
+@keyframes pulse-ring {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(2); opacity: 0; }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .sellers-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+});
+</script>

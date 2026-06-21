@@ -9,12 +9,12 @@ YiiAsset::register($this);
 ?>
 
 <?php $this->beginPage() ?>
-
 <!DOCTYPE html>
-<html lang="<?= Yii::$app->language ?>" id="htmlRoot" data-theme="dark">
+<html lang="<?= Yii::$app->language ?>" data-theme="dark">
 
 <head>
     <?= $this->render('_head') ?>
+    <?php $this->head() ?>
 </head>
 
 <body>
@@ -25,23 +25,13 @@ YiiAsset::register($this);
 
     <?= $this->render('_sidebar') ?>
 
-    <div class="app-main">
+    <div class="app-main" id="app-main">
 
         <?= $this->render('_header') ?>
 
-        <!-- THEME TOGGLE BUTTON GLOBAL -->
-        <div class="theme-toggle-wrapper">
-            <button class="theme-btn" onclick="toggleTheme()">
-                🌓 
-            </button>
-        </div>
-
         <main class="app-content">
-
             <?= \common\widgets\Alert::widget() ?>
-
             <?= $content ?>
-
         </main>
 
         <?= $this->render('_footer') ?>
@@ -53,224 +43,299 @@ YiiAsset::register($this);
 <?php $this->endBody() ?>
 
 <style>
-
-/* ==========================================
-ROOT DARK THEME (DEFAULT)
-========================================== */
-
-:root {
-
-    --sidebar-width:260px;
-
-    --bg:#0f172a;
-    --bg-secondary:#1e293b;
-
-    --surface:#111827;
-
-    --card-bg:rgba(255,255,255,.06);
-
-    --border:rgba(255,255,255,.08);
-
-    --text:#f8fafc;
-    --text-muted:#94a3b8;
-
-    --primary:#3b82f6;
-    --primary-hover:#2563eb;
-
-    --shadow:0 10px 35px rgba(0,0,0,.25);
-}
-
-/* ==========================================
-LIGHT THEME (PROFESSIONAL WHITE UI)
-========================================== */
-
-html[data-theme="light"] {
-
-    --bg:#f8fafc;
-    --bg-secondary:#ffffff;
-
-    --surface:#ffffff;
-
-    --card-bg:rgba(202, 213, 255, 0.95);
-
-    --border:#e2e8f0;
-
-    --text:#0f172a;
-
-    --text-muted:#64748b;
-
-    --primary:#2563eb;
-    --primary-hover:#1d4ed8;
-
-    --shadow:0 10px 30px rgba(15,23,42,.08);
-}
-
-/* ==========================================
-GLOBAL STYLES
-========================================== */
-
-html, body {
-
-    margin:0;
-    padding:0;
-
-    min-height:100%;
-
-    background: linear-gradient(135deg, var(--bg), var(--bg-secondary));
-
-    color:var(--text);
-
-    font-family:Inter, Segoe UI, sans-serif;
-
-    transition: all 0.3s ease;
-
-    overflow-x:hidden;
-}
-
-/* ==========================================
-LAYOUT
-========================================== */
-
+/* ============================================
+   LAYOUT
+   ============================================ */
 .app-layout {
-    display:flex;
-    min-height:100vh;
-    width:100%;
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
 }
 
 .app-main {
-
-    flex:1;
-
-    margin-left:var(--sidebar-width);
-
-    min-height:100vh;
-
-    display:flex;
-    flex-direction:column;
-
-    transition:0.3s ease;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    
+    margin-left: var(--sidebar-width);
+    min-height: 100vh;
+    
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ==========================================
-CONTENT
-========================================== */
+.app-main.sidebar-collapsed {
+    margin-left: var(--sidebar-collapsed);
+}
 
+/* ============================================
+   CONTENT AREA
+   ============================================ */
 .app-content {
-
-    flex:1;
-
-    padding:24px;
-
-    width:100%;
+    flex: 1;
+    padding: 24px;
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
 }
 
-/* ==========================================
-GLOBAL CARDS FIX
-========================================== */
-
+/* ============================================
+   GLOBAL CARD STYLES
+   ============================================ */
 .card {
-
-    background:var(--card-bg);
-
-    border:1px solid var(--border);
-
-    border-radius:16px;
-
-    padding:16px;
-
-    box-shadow:var(--shadow);
-
-    transition:0.25s ease;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.25s ease;
 }
 
 .card:hover {
-    transform:translateY(-4px);
+    box-shadow: var(--shadow);
+    transform: translateY(-2px);
 }
 
-/* ==========================================
-BUTTON THEME TOGGLE
-========================================== */
-
-.theme-toggle-wrapper {
-    display:flex;
-    justify-content:flex-end;
-    padding:10px 20px;
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
 }
 
-.theme-btn {
-
-    background:var(--surface);
-
-    border:1px solid var(--border);
-
-    color:var(--text);
-
-    padding:10px 14px;
-
-    border-radius:12px;
-
-    cursor:pointer;
-
-    transition:0.3s ease;
+.card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
 }
 
-.theme-btn:hover {
-    transform:translateY(-2px);
-    background:var(--primary);
-    color:white;
+.card-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 2px;
 }
 
-/* ==========================================
-SCROLLBAR FIX
-========================================== */
-
-::-webkit-scrollbar {
-    width:8px;
+/* ============================================
+   BUTTONS
+   ============================================ */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-::-webkit-scrollbar-thumb {
-    background:#475569;
-    border-radius:20px;
+.btn-primary {
+    background: var(--primary);
+    color: white;
+}
+.btn-primary:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--primary-glow);
 }
 
+.btn-secondary {
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+}
+.btn-secondary:hover {
+    background: var(--surface-hover);
+    color: var(--text);
+}
+
+.btn-danger {
+    background: var(--danger);
+    color: white;
+}
+.btn-danger:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+/* ============================================
+   TABLES
+   ============================================ */
+.table-container {
+    overflow-x: auto;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.data-table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    background: var(--bg-elevated);
+    border-bottom: 1px solid var(--border);
+}
+
+.data-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-secondary);
+    transition: background 0.15s ease;
+}
+
+.data-table tbody tr:hover td {
+    background: var(--surface-hover);
+    color: var(--text);
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ============================================
+   BADGES
+   ============================================ */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.badge-success {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--success);
+}
+
+.badge-warning {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--warning);
+}
+
+.badge-danger {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--danger);
+}
+
+.badge-info {
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--primary);
+}
+
+/* ============================================
+   FORM ELEMENTS
+   ============================================ */
+.form-input {
+    width: 100%;
+    height: 40px;
+    padding: 0 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.form-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+.form-input::placeholder {
+    color: var(--text-muted);
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 992px) {
+    .app-main {
+        margin-left: 0;
+    }
+    .app-main.sidebar-collapsed {
+        margin-left: 0;
+    }
+    .app-content {
+        padding: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .app-content {
+        padding: 12px;
+    }
+}
 </style>
 
 <script>
-
-/* ==========================================
-GLOBAL THEME SYSTEM (FIXED)
-========================================== */
-
+/* ============================================
+   GLOBAL THEME SYSTEM
+   ============================================ */
 function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('app_theme', theme);
 }
 
 function toggleTheme() {
-
-    let current = document.documentElement.getAttribute('data-theme');
-
-    let next = (current === 'dark') ? 'light' : 'dark';
-
-    applyTheme(next);
+    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    applyTheme(current === 'dark' ? 'light' : 'dark');
 }
 
-/* INIT THEME ON LOAD (NO BUG / NO LOOP) */
+// Init on load
 document.addEventListener('DOMContentLoaded', function() {
-
-    let saved = localStorage.getItem('app_theme');
-
-    if (!saved) {
-        saved = 'dark';
-    }
-
+    const saved = localStorage.getItem('app_theme') || 'dark';
     applyTheme(saved);
-
+    
+    // Init Lucide icons globally
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+    
+    // Re-init icons after AJAX/pjax if needed
+    if (typeof jQuery !== 'undefined') {
+        jQuery(document).on('pjax:end', function() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    }
 });
 
+// Keyboard shortcut for search
+document.addEventListener('keydown', function(e) {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        const searchInput = document.querySelector('.search-input');
+        if (searchInput) searchInput.focus();
+    }
+});
 </script>
 
 </body>
 </html>
-
 <?php $this->endPage() ?>

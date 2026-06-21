@@ -10,225 +10,166 @@ $branchOptions = ArrayHelper::map($branches, 'id', 'name');
 $ajaxUrl = Url::to(['analytics/monthly-ajax']);
 ?>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<div class="page-container">
 
-<div class="monthly-wrapper">
-
-    <!-- HEADER -->
-    <div class="header">
-
-        <div>
-            <h1>📆 Monthly Analytics</h1>
-            <p>Analyze branch performance by month</p>
-        </div>
-
-        <a href="<?= Url::to(['analytics/index']) ?>" class="back-btn">
-            ← Back
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="<?= Url::to(['analytics/index']) ?>">
+            <i data-lucide="chevron-left" class="icon-16"></i>
+            Analytics
         </a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">Monthly Report</span>
+    </nav>
 
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Monthly Analytics</h1>
+            <p class="page-subtitle">Analyze branch performance by month</p>
+        </div>
     </div>
 
-    <!-- FILTERS -->
+    <!-- Filters -->
     <div class="filter-card">
-
-        <div class="grid">
-
-            <div>
-                <label>Branch</label>
-
-                <?= Html::dropDownList(
-                    'branch_id',
-                    $branch_id ?? '',
-                    $branchOptions,
-                    [
-                        'class' => 'input',
-                        'id' => 'branchSelect'
-                    ]
-                ) ?>
+        <div class="filter-grid">
+            <div class="filter-group">
+                <label class="filter-label">
+                    <i data-lucide="git-branch" class="icon-14"></i>
+                    Branch
+                </label>
+                <?= Html::dropDownList('branch_id', $branch_id ?? '', $branchOptions, [
+                    'class' => 'form-control',
+                    'id' => 'branchSelect'
+                ]) ?>
             </div>
-
-            <div>
-                <label>Select Month</label>
-
-                <input type="month"
-                       id="monthSelect"
-                       value="<?= Html::encode($month ?? date('Y-m')) ?>"
-                       class="input">
+            <div class="filter-group">
+                <label class="filter-label">
+                    <i data-lucide="calendar-days" class="icon-14"></i>
+                    Month
+                </label>
+                <input type="month" id="monthSelect" value="<?= Html::encode($month ?? date('Y-m')) ?>" class="form-control">
             </div>
-
-            <div>
-                <label>&nbsp;</label>
-
-                <button type="button" class="btn" id="loadBtn">
+            <div class="filter-group">
+                <label class="filter-label">&nbsp;</label>
+                <button type="button" class="btn btn-primary" id="loadBtn">
+                    <i data-lucide="bar-chart-3" class="icon-16"></i>
                     Generate Report
                 </button>
             </div>
-
         </div>
-
     </div>
 
-    <!-- KPI CARDS -->
-    <div class="cards">
-
-        <div class="card blue">
-            <h3>Total Sales</h3>
-            <p id="totalSales">TZS 0</p>
+    <!-- KPI Cards -->
+    <div class="stats-row">
+        <div class="stat-card highlight-blue">
+            <div class="stat-header">
+                <span class="stat-title">Total Sales</span>
+                <div class="stat-icon-sm" style="background: rgba(59,130,246,0.15); color: #3b82f6;">
+                    <i data-lucide="banknote" class="icon-16"></i>
+                </div>
+            </div>
+            <div class="stat-number" id="totalSales">TZS 0</div>
+            <div class="stat-trend">Monthly revenue</div>
         </div>
-
-        <div class="card green">
-            <h3>Total Profit</h3>
-            <p id="totalProfit">TZS 0</p>
+        <div class="stat-card highlight-green">
+            <div class="stat-header">
+                <span class="stat-title">Total Profit</span>
+                <div class="stat-icon-sm" style="background: rgba(34,197,94,0.15); color: #22c55e;">
+                    <i data-lucide="trending-up" class="icon-16"></i>
+                </div>
+            </div>
+            <div class="stat-number" id="totalProfit">TZS 0</div>
+            <div class="stat-trend">Net earnings</div>
         </div>
-
-        <div class="card purple">
-            <h3>Transactions</h3>
-            <p id="transactions">0</p>
+        <div class="stat-card highlight-purple">
+            <div class="stat-header">
+                <span class="stat-title">Transactions</span>
+                <div class="stat-icon-sm" style="background: rgba(139,92,246,0.15); color: #8b5cf6;">
+                    <i data-lucide="receipt" class="icon-16"></i>
+                </div>
+            </div>
+            <div class="stat-number" id="transactions">0</div>
+            <div class="stat-trend">Completed sales</div>
         </div>
-
-        <div class="card orange">
-            <h3>Avg Daily Sales</h3>
-            <p id="avgSales">TZS 0</p>
+        <div class="stat-card highlight-orange">
+            <div class="stat-header">
+                <span class="stat-title">Avg Daily Sales</span>
+                <div class="stat-icon-sm" style="background: rgba(245,158,11,0.15); color: #f59e0b;">
+                    <i data-lucide="calculator" class="icon-16"></i>
+                </div>
+            </div>
+            <div class="stat-number" id="avgSales">TZS 0</div>
+            <div class="stat-trend">Per day average</div>
         </div>
-
     </div>
 
-    <!-- CHART -->
+    <!-- Chart -->
     <div class="chart-card">
-        <h3>📊 Monthly Sales Trend</h3>
-        <canvas id="monthlyChart"></canvas>
+        <div class="chart-header">
+            <h3 class="chart-title">
+                <i data-lucide="bar-chart-3" class="icon-18"></i>
+                Monthly Sales Trend
+            </h3>
+            <div class="chart-legend">
+                <span class="legend-item">
+                    <span class="legend-dot" style="background: #38bdf8;"></span>
+                    Sales
+                </span>
+                <span class="legend-item">
+                    <span class="legend-dot" style="background: #22c55e;"></span>
+                    Profit
+                </span>
+            </div>
+        </div>
+        <div class="chart-body">
+            <canvas id="monthlyChart"></canvas>
+        </div>
     </div>
 
-    <!-- TABLE -->
-    <div class="table-card">
-        <h3>📋 Daily Breakdown</h3>
-        <div id="tableContainer"></div>
+    <!-- Data Table -->
+    <div class="data-card">
+        <div class="data-header">
+            <h3 class="data-title">
+                <i data-lucide="table" class="icon-18"></i>
+                Daily Breakdown
+            </h3>
+        </div>
+        <div class="table-responsive" id="tableContainer">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th class="text-right">Sales</th>
+                        <th class="text-right">Profit</th>
+                        <th class="text-center">Transactions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="4" class="empty-cell">
+                            <div class="empty-inline">
+                                <i data-lucide="bar-chart-3" class="icon-24"></i>
+                                <span>Generate a report to see daily breakdown</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
 </div>
 
-<style>
-
-body{
-    background:#0f172a;
-    font-family:Segoe UI;
-    color:white;
-}
-
-.monthly-wrapper{
-    padding:30px;
-}
-
-/* HEADER */
-.header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:20px;
-}
-
-.back-btn{
-    background:#1e293b;
-    padding:10px 15px;
-    border-radius:10px;
-    color:white;
-    text-decoration:none;
-}
-
-/* FILTER */
-.filter-card{
-    background:#111827;
-    padding:20px;
-    border-radius:15px;
-    margin-bottom:20px;
-}
-
-.grid{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:15px;
-}
-
-.input{
-    width:100%;
-    padding:10px;
-    border-radius:10px;
-    background:#1e293b;
-    border:none;
-    color:white;
-}
-
-.btn{
-    width:100%;
-    padding:10px;
-    border:none;
-    border-radius:10px;
-    background:#8b5cf6;
-    color:white;
-    cursor:pointer;
-}
-
-/* CARDS */
-.cards{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-    gap:15px;
-    margin-bottom:20px;
-}
-
-.card{
-    background:#111827;
-    padding:20px;
-    border-radius:15px;
-    border-left:4px solid transparent;
-}
-
-.card h3{ color:#94a3b8; }
-.card p{ font-size:22px; }
-
-.blue{border-color:#38bdf8;}
-.green{border-color:#22c55e;}
-.purple{border-color:#8b5cf6;}
-.orange{border-color:#f97316;}
-
-/* TABLE */
-.table-card{
-    background:#111827;
-    padding:20px;
-    border-radius:15px;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-th,td{
-    padding:10px;
-    border-bottom:1px solid rgba(255,255,255,.05);
-}
-
-th{color:#94a3b8;}
-
-.empty{
-    text-align:center;
-    color:#94a3b8;
-}
-
-</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
 <script>
-
 let chart = null;
 let loading = false;
 
-// ===========================
-// LOAD MONTHLY DATA (SAFE)
-// ===========================
-function loadMonthlyReport(){
-
-    if(loading) return;
+function loadMonthlyReport() {
+    if (loading) return;
     loading = true;
 
     $.ajax({
@@ -240,22 +181,15 @@ function loadMonthlyReport(){
         },
         dataType: "json",
 
-        success: function(res){
+        success: function(res) {
+            if (!res) return;
 
-            if(!res) return;
-
-            // ======================
-            // KPI UPDATE
-            // ======================
             $('#totalSales').text('TZS ' + (res.monthlySales || 0));
             $('#totalProfit').text('TZS ' + (res.monthlyProfit || 0));
             $('#transactions').text(res.totalTransactions || 0);
             $('#avgSales').text('TZS ' + (res.avgDailySales || 0));
 
-            // ======================
-            // CHART SAFE
-            // ======================
-            if(chart) chart.destroy();
+            if (chart) chart.destroy();
 
             chart = new Chart(document.getElementById('monthlyChart'), {
                 type: 'bar',
@@ -265,86 +199,87 @@ function loadMonthlyReport(){
                         {
                             label: 'Sales',
                             data: res.chartSales || [],
-                            backgroundColor: '#38bdf8'
+                            backgroundColor: '#38bdf8',
+                            borderRadius: 4
                         },
                         {
                             label: 'Profit',
                             data: res.chartProfit || [],
-                            backgroundColor: '#22c55e'
+                            backgroundColor: '#22c55e',
+                            borderRadius: 4
                         }
                     ]
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
-                        legend: { labels: { color: '#fff' } }
+                        legend: { display: false }
                     },
                     scales: {
-                        x: { ticks: { color: '#94a3b8' } },
-                        y: { ticks: { color: '#94a3b8' } }
+                        x: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#94a3b8' }
+                        }
                     }
                 }
             });
 
-            // ======================
-            // TABLE UPDATE SAFE
-            // ======================
-            let html = `<table>
+            let html = `<table class="data-table">
                 <thead>
                     <tr>
                         <th>Date</th>
-                        <th>Sales</th>
-                        <th>Profit</th>
-                        <th>Transactions</th>
+                        <th class="text-right">Sales</th>
+                        <th class="text-right">Profit</th>
+                        <th class="text-center">Transactions</th>
                     </tr>
                 </thead>
                 <tbody>`;
 
-            if(res.dailyData && res.dailyData.length > 0){
-
+            if (res.dailyData && res.dailyData.length > 0) {
                 res.dailyData.forEach(row => {
                     html += `
                         <tr>
                             <td>${row.date}</td>
-                            <td>TZS ${row.sales}</td>
-                            <td>TZS ${row.profit}</td>
-                            <td>${row.transactions}</td>
+                            <td class="text-right mono">TZS ${row.sales}</td>
+                            <td class="text-right mono">TZS ${row.profit}</td>
+                            <td class="text-center">${row.transactions}</td>
                         </tr>
                     `;
                 });
-
             } else {
-                html += `<tr><td colspan="4" class="empty">No data available</td></tr>`;
+                html += `<tr><td colspan="4" class="empty-cell"><div class="empty-inline"><i data-lucide="inbox" class="icon-24"></i><span>No data available</span></div></td></tr>`;
             }
 
             html += `</tbody></table>`;
-
             $('#tableContainer').html(html);
         },
 
-        complete: function(){
+        complete: function() {
             loading = false;
         },
 
-        error: function(){
+        error: function() {
             loading = false;
         }
-
     });
 }
 
-// ===========================
-// INIT ONLY ONCE (NO LOOP BUG)
-// ===========================
-$(document).ready(function(){
+$(document).ready(function() {
     loadMonthlyReport();
 });
 
-// ===========================
-// BUTTON ACTION
-// ===========================
-$('#loadBtn').on('click', function(){
+$('#loadBtn').on('click', function() {
     loadMonthlyReport();
 });
 
+if (typeof lucide !== 'undefined') lucide.createIcons();
 </script>
+
+<style>
+/* Same filter, stats, chart, and table styles as daily.php and index.php */
+</style>

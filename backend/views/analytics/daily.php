@@ -10,307 +10,333 @@ $branchOptions = ArrayHelper::map($branches, 'id', 'name');
 $ajaxUrl = Url::to(['analytics/daily-ajax']);
 ?>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<div class="page-container">
 
-<div class="daily-wrapper">
-
-    <!-- HEADER -->
-    <div class="header">
-
-        <div>
-            <h1>📅 Daily Analytics (Realtime)</h1>
-            <p>Branch + Date based live reporting system</p>
-        </div>
-
-        <a href="<?= Url::to(['analytics/index']) ?>" class="back-btn">
-            ← Back
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="<?= Url::to(['analytics/index']) ?>">
+            <i data-lucide="chevron-left" class="icon-16"></i>
+            Analytics
         </a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">Daily Report</span>
+    </nav>
 
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Daily Analytics</h1>
+            <p class="page-subtitle">Realtime branch performance by date</p>
+        </div>
+        <div class="live-badge">
+            <span class="status-dot online"></span>
+            Live
+        </div>
     </div>
 
-    <!-- FILTERS -->
+    <!-- Filters -->
     <div class="filter-card">
-
-        <div class="grid">
-
-            <div>
-                <label>Branch</label>
-
-                <?= Html::dropDownList(
-                    'branch_id',
-                    $branch_id ?? '',
-                    $branchOptions,
-                    [
-                        'class' => 'input',
-                        'id' => 'branch_id'
-                    ]
-                ) ?>
+        <div class="filter-grid">
+            <div class="filter-group">
+                <label class="filter-label">
+                    <i data-lucide="git-branch" class="icon-14"></i>
+                    Branch
+                </label>
+                <?= Html::dropDownList('branch_id', $branch_id ?? '', $branchOptions, [
+                    'class' => 'form-control',
+                    'id' => 'branch_id'
+                ]) ?>
             </div>
-
-            <div>
-                <label>Select Date</label>
-
-                <input type="date"
-                       id="date"
-                       value="<?= Html::encode($date ?? date('Y-m-d')) ?>"
-                       class="input">
+            <div class="filter-group">
+                <label class="filter-label">
+                    <i data-lucide="calendar" class="icon-14"></i>
+                    Date
+                </label>
+                <input type="date" id="date" value="<?= Html::encode($date ?? date('Y-m-d')) ?>" class="form-control">
             </div>
-
-            <div>
-                <label>Action</label>
-
-                <button class="btn" id="refreshBtn">
-                    🔄 Load Realtime
+            <div class="filter-group">
+                <label class="filter-label">&nbsp;</label>
+                <button class="btn btn-primary" id="refreshBtn">
+                    <i data-lucide="refresh-cw" class="icon-16"></i>
+                    Load Realtime
                 </button>
             </div>
-
         </div>
-
     </div>
 
-    <!-- KPI CARDS -->
-    <div class="cards">
-
-        <div class="card blue">
-            <h3>Total Sales</h3>
-            <p id="sales">TZS 0</p>
+    <!-- KPI Cards -->
+    <div class="stats-row">
+        <div class="stat-card highlight-blue">
+            <div class="stat-header">
+                <span class="stat-title">Total Sales</span>
+                <div class="stat-icon-sm" style="background: rgba(59,130,246,0.15); color: #3b82f6;">
+                    <i data-lucide="banknote" class="icon-16"></i>
+                </div>
+            </div>
+            <div class="stat-number" id="sales">TZS 0</div>
+            <div class="stat-trend">Revenue today</div>
         </div>
-
-        <div class="card green">
-            <h3>Total Profit</h3>
-            <p id="profit">TZS 0</p>
+        <div class="stat-card highlight-green">
+            <div class="stat-header">
+                <span class="stat-title">Total Profit</span>
+                <div class="stat-icon-sm" style="background: rgba(34,197,94,0.15); color: #22c55e;">
+                    <i data-lucide="trending-up" class="icon-16"></i>
+                </div>
+            </div>
+            <div class="stat-number" id="profit">TZS 0</div>
+            <div class="stat-trend">Net earnings</div>
         </div>
-
-        <div class="card purple">
-            <h3>Transactions</h3>
-            <p id="transactions">0</p>
+        <div class="stat-card highlight-purple">
+            <div class="stat-header">
+                <span class="stat-title">Transactions</span>
+                <div class="stat-icon-sm" style="background: rgba(139,92,246,0.15); color: #8b5cf6;">
+                    <i data-lucide="receipt" class="icon-16"></i>
+                </div>
+            </div>
+            <div class="stat-number" id="transactions">0</div>
+            <div class="stat-trend">Completed sales</div>
         </div>
-
-        <div class="card orange">
-            <h3>Avg Sale</h3>
-            <p id="avg">TZS 0</p>
+        <div class="stat-card highlight-orange">
+            <div class="stat-header">
+                <span class="stat-title">Avg Sale</span>
+                <div class="stat-icon-sm" style="background: rgba(245,158,11,0.15); color: #f59e0b;">
+                    <i data-lucide="calculator" class="icon-16"></i>
+                </div>
+            </div>
+            <div class="stat-number" id="avg">TZS 0</div>
+            <div class="stat-trend">Per transaction</div>
         </div>
-
     </div>
 
-    <!-- SUMMARY -->
+    <!-- Summary Card -->
     <div class="summary-card">
-
-        <h3>📊 Live Summary</h3>
-
-        <div class="summary-row">
-            <span>Best Product</span>
-            <b id="best">-</b>
+        <h3 class="summary-title">
+            <i data-lucide="activity" class="icon-18"></i>
+            Live Summary
+        </h3>
+        <div class="summary-grid">
+            <div class="summary-item">
+                <span class="summary-label">Best Product</span>
+                <span class="summary-value" id="best">-</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Worst Product</span>
+                <span class="summary-value" id="worst">-</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Stock Impact</span>
+                <span class="summary-value" id="stock">-</span>
+            </div>
         </div>
-
-        <div class="summary-row">
-            <span>Worst Product</span>
-            <b id="worst">-</b>
-        </div>
-
-        <div class="summary-row">
-            <span>Stock Impact</span>
-            <b id="stock">-</b>
-        </div>
-
     </div>
 
 </div>
 
 <style>
-
-body{
-    background:#0f172a;
-    font-family:Segoe UI;
-    color:white;
+/* ============================================
+   LIVE BADGE
+   ============================================ */
+.live-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    color: var(--success);
+    font-size: 12px;
+    font-weight: 600;
 }
 
-.daily-wrapper{
-    padding:30px;
+/* ============================================
+   FILTER CARD
+   ============================================ */
+.filter-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 24px;
 }
 
-/* HEADER */
-.header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:20px;
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    align-items: end;
 }
 
-.header p{ color:#94a3b8; }
-
-.back-btn{
-    background:#1e293b;
-    padding:10px 15px;
-    border-radius:10px;
-    color:white;
-    text-decoration:none;
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
-/* FILTER */
-.filter-card{
-    background:#111827;
-    padding:20px;
-    border-radius:15px;
-    margin-bottom:20px;
+.filter-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-    gap:15px;
+.filter-label i {
+    color: var(--primary);
 }
 
-.input{
-    width:100%;
-    padding:10px;
-    border-radius:10px;
-    background:#1e293b;
-    border:none;
-    color:white;
+/* ============================================
+   HIGHLIGHT STAT CARDS
+   ============================================ */
+.stat-card.highlight-blue {
+    border-color: rgba(59, 130, 246, 0.3);
+    background: linear-gradient(135deg, var(--card-bg), rgba(59, 130, 246, 0.05));
 }
 
-/* BUTTON */
-.btn{
-    width:100%;
-    padding:10px;
-    border:none;
-    border-radius:10px;
-    background:#38bdf8;
-    color:white;
-    cursor:pointer;
+.stat-card.highlight-green {
+    border-color: rgba(34, 197, 94, 0.3);
+    background: linear-gradient(135deg, var(--card-bg), rgba(34, 197, 94, 0.05));
 }
 
-/* CARDS */
-.cards{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-    gap:15px;
-    margin-bottom:20px;
+.stat-card.highlight-purple {
+    border-color: rgba(139, 92, 246, 0.3);
+    background: linear-gradient(135deg, var(--card-bg), rgba(139, 92, 246, 0.05));
 }
 
-.card{
-    background:#111827;
-    padding:20px;
-    border-radius:15px;
-    border-left:4px solid transparent;
+.stat-card.highlight-orange {
+    border-color: rgba(245, 158, 11, 0.3);
+    background: linear-gradient(135deg, var(--card-bg), rgba(245, 158, 11, 0.05));
 }
 
-.card h3{ margin:0; color:#94a3b8; }
-.card p{ font-size:22px; margin-top:10px; }
-
-.blue{border-color:#38bdf8;}
-.green{border-color:#22c55e;}
-.purple{border-color:#8b5cf6;}
-.orange{border-color:#f97316;}
-
-/* SUMMARY */
-.summary-card{
-    background:#111827;
-    padding:20px;
-    border-radius:15px;
+/* ============================================
+   SUMMARY CARD
+   ============================================ */
+.summary-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-top: 24px;
 }
 
-.summary-row{
-    display:flex;
-    justify-content:space-between;
-    padding:10px;
-    border-bottom:1px solid rgba(255,255,255,.05);
+.summary-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0 0 20px 0;
 }
 
-.summary-row span{ color:#94a3b8; }
+.summary-title i {
+    color: var(--primary);
+}
 
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 16px;
+    background: var(--bg-elevated);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+}
+
+.summary-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.summary-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .filter-grid {
+        grid-template-columns: 1fr;
+    }
+    .filter-group:last-child {
+        margin-top: 8px;
+    }
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+}
 </style>
 
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
-
 let isLoading = false;
 let interval = null;
 
-// ===========================
-// SAFE AJAX LOADER
-// ===========================
-function loadData(){
-
-    if(isLoading) return; // 🔥 prevent infinite overlapping requests
-
+function loadData() {
+    if (isLoading) return;
     isLoading = true;
 
     let branch = $('#branch_id').val();
-    let date   = $('#date').val();
+    let date = $('#date').val();
 
     $.ajax({
-
         url: '<?= $ajaxUrl ?>',
-
         type: 'GET',
-
-        data: {
-            branch_id: branch,
-            date: date
-        },
-
-        success: function(res){
-
-            if(!res) return;
+        data: { branch_id: branch, date: date },
+        success: function(res) {
+            if (!res) return;
 
             $('#sales').text('TZS ' + (res.sales || 0));
             $('#profit').text('TZS ' + (res.profit || 0));
             $('#transactions').text(res.transactions || 0);
             $('#avg').text('TZS ' + (res.avg || 0));
-
             $('#best').text(res.best_product || '-');
             $('#worst').text(res.worst_product || '-');
             $('#stock').text(res.stock_impact || '-');
         },
-
-        complete: function(){
-            isLoading = false; // unlock request
+        complete: function() {
+            isLoading = false;
         },
-
-        error: function(){
+        error: function() {
             isLoading = false;
         }
-
     });
 }
 
-// ===========================
-// INITIAL LOAD (ONLY ONCE)
-// ===========================
-$(document).ready(function(){
-
+$(document).ready(function() {
     loadData();
-
-    // safe interval (no stacking)
-    interval = setInterval(function(){
+    interval = setInterval(function() {
         loadData();
     }, 15000);
-
 });
 
-// ===========================
-// FILTER CHANGE
-// ===========================
-$('#branch_id, #date').on('change', function(){
+$('#branch_id, #date').on('change', function() {
     loadData();
 });
 
-// ===========================
-// BUTTON REFRESH
-// ===========================
-$('#refreshBtn').on('click', function(e){
+$('#refreshBtn').on('click', function(e) {
     e.preventDefault();
     loadData();
 });
 
-// ===========================
-// CLEANUP
-// ===========================
-$(window).on('beforeunload', function(){
-    if(interval){
-        clearInterval(interval);
-    }
+$(window).on('beforeunload', function() {
+    if (interval) clearInterval(interval);
 });
 
+if (typeof lucide !== 'undefined') lucide.createIcons();
 </script>

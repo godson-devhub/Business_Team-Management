@@ -11,12 +11,7 @@ use yii\helpers\Url;
 
 $this->title = $branch->name . ' Daily Profit';
 
-/* =========================
- * BASIC CALCULATIONS
- * ========================= */
-
 $totalItems = count($sales);
-
 $totalRevenue = 0;
 
 foreach ($sales as $item) {
@@ -25,305 +20,123 @@ foreach ($sales as $item) {
 
 ?>
 
-<style>
+<div class="page-container">
 
-/* =========================
-GLOBAL THEME
-========================= */
-
-body{
-    background: radial-gradient(circle at top,#0f172a,#020617);
-    color:white;
-    font-family:'Segoe UI',sans-serif;
-}
-
-/* =========================
-PAGE
-========================= */
-
-.page-wrapper{
-    padding:40px;
-}
-
-/* =========================
-HEADER
-========================= */
-
-.page-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    flex-wrap:wrap;
-    gap:15px;
-    margin-bottom:30px;
-}
-
-.page-title{
-    font-size:34px;
-    font-weight:800;
-}
-
-.page-subtitle{
-    color:#94a3b8;
-    margin-top:6px;
-}
-
-.back-btn{
-    padding:12px 18px;
-    border-radius:14px;
-    text-decoration:none;
-    color:white;
-    background:rgba(255,255,255,.08);
-    border:1px solid rgba(255,255,255,.08);
-    backdrop-filter:blur(20px);
-    transition:.3s;
-}
-
-.back-btn:hover{
-    transform:translateY(-4px);
-    background:rgba(255,255,255,.15);
-}
-
-/* =========================
-SUMMARY CARDS
-========================= */
-
-.summary-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:20px;
-    margin-bottom:30px;
-}
-
-.summary-card{
-    padding:24px;
-    border-radius:24px;
-    background:rgba(255,255,255,.06);
-    border:1px solid rgba(255,255,255,.08);
-    backdrop-filter:blur(18px);
-    transition:.3s;
-}
-
-.summary-card:hover{
-    transform:translateY(-6px);
-    background:rgba(255,255,255,.10);
-}
-
-.summary-value{
-    font-size:30px;
-    font-weight:800;
-    color:#a855f7;
-}
-
-.summary-label{
-    margin-top:8px;
-    color:#94a3b8;
-}
-
-/* =========================
-TABLE
-========================= */
-
-.table-card{
-    background:rgba(255,255,255,.05);
-    border:1px solid rgba(255,255,255,.08);
-    border-radius:24px;
-    overflow:hidden;
-    backdrop-filter:blur(20px);
-}
-
-.table-header{
-    padding:20px;
-    font-size:20px;
-    font-weight:700;
-    border-bottom:1px solid rgba(255,255,255,.08);
-}
-
-.table-wrap{
-    overflow:auto;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-thead{
-    background:rgba(255,255,255,.04);
-}
-
-th{
-    padding:18px;
-    text-align:left;
-    color:#cbd5e1;
-    font-size:13px;
-    text-transform:uppercase;
-}
-
-td{
-    padding:18px;
-    border-top:1px solid rgba(255,255,255,.05);
-}
-
-tbody tr:hover{
-    background:rgba(255,255,255,.05);
-}
-
-/* =========================
-BADGES
-========================= */
-
-.badge{
-    padding:6px 12px;
-    border-radius:999px;
-    font-size:12px;
-    font-weight:700;
-}
-
-.badge-profit{
-    background:#a855f7;
-}
-
-.badge-green{
-    background:#22c55e;
-}
-
-.badge-blue{
-    background:#3b82f6;
-}
-
-/* =========================
-EMPTY
-========================= */
-
-.empty{
-    padding:70px;
-    text-align:center;
-    color:#94a3b8;
-}
-
-</style>
-
-<div class="page-wrapper">
-
-    <!-- HEADER -->
-    <div class="page-header">
-
-        <div>
-            <div class="page-title">
-                📈 Daily Profit
-            </div>
-
-            <div class="page-subtitle">
-                <?= Html::encode($branch->name) ?>
-            </div>
-        </div>
-
-        <a href="<?= Url::to(['view','id'=>$branch->id]) ?>"
-           class="back-btn">
-            ← Back Dashboard
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="<?= Url::to(['branch/view', 'id' => $branch->id]) ?>">
+            <i data-lucide="chevron-left" class="icon-16"></i>
+            <?= Html::encode($branch->name) ?>
         </a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">Daily Profit</span>
+    </nav>
 
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Daily Profit</h1>
+            <p class="page-subtitle"><?= Html::encode($branch->name) ?> — <?= date('F d, Y') ?></p>
+        </div>
+        <div class="date-badge">
+            <i data-lucide="calendar" class="icon-14"></i>
+            Today
+        </div>
     </div>
 
-    <!-- SUMMARY -->
-    <div class="summary-grid">
-
-        <div class="summary-card">
-            <div class="summary-value">
-                <?= number_format($totalItems) ?>
+    <!-- Summary Cards -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(139,92,246,0.15); color: #8b5cf6;">
+                <i data-lucide="package" class="icon-20"></i>
             </div>
-            <div class="summary-label">Items Sold</div>
-        </div>
-
-        <div class="summary-card">
-            <div class="summary-value">
-                TZS <?= number_format($totalRevenue) ?>
+            <div class="stat-info">
+                <div class="stat-value"><?= number_format($totalItems) ?></div>
+                <div class="stat-label">Items Sold</div>
             </div>
-            <div class="summary-label">Revenue</div>
         </div>
-
-        <div class="summary-card">
-            <div class="summary-value">
-                TZS <?= number_format($totalProfit) ?>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(59,130,246,0.15); color: #3b82f6;">
+                <i data-lucide="banknote" class="icon-20"></i>
             </div>
-            <div class="summary-label">Total Profit</div>
+            <div class="stat-info">
+                <div class="stat-value">TZS <?= number_format($totalRevenue) ?></div>
+                <div class="stat-label">Revenue</div>
+            </div>
         </div>
-
+        <div class="stat-card highlight">
+            <div class="stat-icon" style="background: rgba(168,85,247,0.15); color: #a855f7;">
+                <i data-lucide="trending-up" class="icon-20"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value" style="color: #a855f7;">TZS <?= number_format($totalProfit) ?></div>
+                <div class="stat-label">Total Profit</div>
+            </div>
+        </div>
     </div>
 
-    <!-- TABLE -->
-    <div class="table-card">
-
-        <div class="table-header">
-            Profit Breakdown (Product Level)
+    <!-- Data Table -->
+    <div class="data-card">
+        <div class="data-header">
+            <h3 class="data-title">
+                <i data-lucide="pie-chart" class="icon-18"></i>
+                Profit Breakdown
+            </h3>
+            <span class="data-count"><?= $totalItems ?> transactions</span>
         </div>
 
         <?php if (!empty($sales)): ?>
 
-            <div class="table-wrap">
-
-                <table>
-
+            <div class="table-responsive">
+                <table class="data-table">
                     <thead>
                         <tr>
                             <th>Product</th>
-                            <th>Qty</th>
-                            <th>Revenue</th>
-                            <th>Profit</th>
-                            <th>Unit Profit</th>
+                            <th class="text-center">Qty</th>
+                            <th class="text-right">Revenue</th>
+                            <th class="text-right">Profit</th>
+                            <th class="text-right">Unit Profit</th>
                             <th>Date</th>
                         </tr>
                     </thead>
-
                     <tbody>
-
-                    <?php foreach ($sales as $item): ?>
-
-                        <tr>
-
-                            <td>
-                                <?= Html::encode($item->product->name ?? 'N/A') ?>
-                            </td>
-
-                            <td>
-                                <span class="badge badge-blue">
-                                    <?= $item->quantity ?>
-                                </span>
-                            </td>
-
-                            <td>
-                                TZS <?= number_format($item->quantity * $item->selling_price) ?>
-                            </td>
-
-                            <td>
-                                <span class="badge badge-profit">
-                                    TZS <?= number_format($item->profit) ?>
-                                </span>
-                            </td>
-
-                            <td>
-                                TZS <?= number_format($item->selling_price - ($item->product->buying_price ?? 0)) ?>
-                            </td>
-
-                            <td>
-                                <?= date('d M Y H:i', $item->sale->created_at ?? time()) ?>
-                            </td>
-
-                        </tr>
-
-                    <?php endforeach; ?>
-
+                        <?php foreach ($sales as $item): ?>
+                            <tr>
+                                <td>
+                                    <div class="product-cell">
+                                        <div class="product-icon">
+                                            <i data-lucide="box" class="icon-16"></i>
+                                        </div>
+                                        <span class="product-name"><?= Html::encode($item->product->name ?? 'N/A') ?></span>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge badge-info"><?= $item->quantity ?></span>
+                                </td>
+                                <td class="text-right mono">TZS <?= number_format($item->quantity * $item->selling_price) ?></td>
+                                <td class="text-right">
+                                    <span class="badge badge-profit">TZS <?= number_format($item->profit) ?></span>
+                                </td>
+                                <td class="text-right mono">
+                                    TZS <?= number_format($item->selling_price - ($item->product->buying_price ?? 0)) ?>
+                                </td>
+                                <td class="text-muted">
+                                    <?= date('d M Y H:i', $item->sale->created_at ?? time()) ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
                     </tbody>
-
                 </table>
-
             </div>
 
         <?php else: ?>
 
-            <div class="empty">
-                📉 No profit data found today
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i data-lucide="trending-down" class="icon-48"></i>
+                </div>
+                <h3>No profit data today</h3>
+                <p>No sales have been recorded for this branch today</p>
             </div>
 
         <?php endif; ?>
@@ -331,3 +144,208 @@ EMPTY
     </div>
 
 </div>
+
+<style>
+/* ============================================
+   DATE BADGE
+   ============================================ */
+.date-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: var(--radius-lg);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+/* ============================================
+   HIGHLIGHT STAT CARD
+   ============================================ */
+.stat-card.highlight {
+    border-color: rgba(168, 85, 247, 0.3);
+    background: linear-gradient(135deg, var(--card-bg), rgba(168, 85, 247, 0.05));
+}
+
+/* ============================================
+   DATA CARD
+   ============================================ */
+.data-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.data-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.data-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+}
+
+.data-count {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: var(--bg-elevated);
+}
+
+/* ============================================
+   TABLE STYLES
+   ============================================ */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.data-table th {
+    padding: 14px 20px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    background: var(--bg-elevated);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+}
+
+.data-table td {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-secondary);
+    vertical-align: middle;
+}
+
+.data-table tbody tr {
+    transition: background 0.15s ease;
+}
+
+.data-table tbody tr:hover {
+    background: var(--surface-hover);
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-muted { color: var(--text-muted); }
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+/* Product Cell */
+.product-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.product-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-elevated);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
+.product-name {
+    font-weight: 500;
+    color: var(--text);
+}
+
+/* Badges */
+.badge-profit {
+    background: rgba(168, 85, 247, 0.15);
+    color: #a855f7;
+    font-weight: 600;
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.empty-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--bg-elevated);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+}
+
+.empty-state h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0 0 6px 0;
+}
+
+.empty-state p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .stats-row {
+        grid-template-columns: 1fr;
+    }
+    .data-table th,
+    .data-table td {
+        padding: 12px 14px;
+    }
+    .product-icon {
+        display: none;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+});
+</script>

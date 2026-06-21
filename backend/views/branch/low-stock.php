@@ -8,20 +8,14 @@ use yii\helpers\Url;
  * @var \common\models\Product[] $products
  */
 
-$this->title = $branch->name . ' Low Stock Products';
+$this->title = $branch->name . ' Low Stock';
 
-/* =========================
-STATS
-========================= */
 $totalLowStock = count($products);
 $criticalCount = 0;
 $warningCount = 0;
 
 foreach ($products as $product) {
-
-    // USE DB THRESHOLD (IMPORTANT FIX)
     $threshold = (int)$product->min_stock_alert;
-
     if ($product->stock_quantity <= 2) {
         $criticalCount++;
     } else {
@@ -30,138 +24,130 @@ foreach ($products as $product) {
 }
 ?>
 
-<!-- =========================
-BACKGROUND (MATCH SELLER DASHBOARD)
-========================= -->
-<div class="background-blobs">
-    <div class="blob blob1"></div>
-    <div class="blob blob2"></div>
-</div>
+<div class="page-container">
 
-<div class="page-wrapper">
-
-    <!-- HEADER -->
-    <div class="page-header">
-
-        <div>
-            <h1 class="page-title">⚠️ Low Stock Products</h1>
-            <p class="page-subtitle"><?= Html::encode($branch->name) ?></p>
-        </div>
-
-        <a href="<?= Url::to(['/branch/view', 'id' => $branch->id]) ?>" class="back-btn">
-            ← Back Dashboard
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="<?= Url::to(['branch/view', 'id' => $branch->id]) ?>">
+            <i data-lucide="chevron-left" class="icon-16"></i>
+            <?= Html::encode($branch->name) ?>
         </a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">Low Stock</span>
+    </nav>
 
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Low Stock Alert</h1>
+            <p class="page-subtitle">Products requiring immediate restock</p>
+        </div>
+        <div class="alert-badge">
+            <i data-lucide="alert-triangle" class="icon-14"></i>
+            <?= $totalLowStock ?> items need attention
+        </div>
     </div>
 
-    <!-- SUMMARY -->
-    <div class="summary-grid">
-
-        <div class="summary-card">
-            <div class="summary-value" style="color:#38bdf8;">
-                <?= $totalLowStock ?>
+    <!-- Alert Stats -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(59,130,246,0.15); color: #3b82f6;">
+                <i data-lucide="package" class="icon-20"></i>
             </div>
-            <div class="summary-label">Low Stock Products</div>
-        </div>
-
-        <div class="summary-card">
-            <div class="summary-value" style="color:#ef4444;">
-                <?= $criticalCount ?>
+            <div class="stat-info">
+                <div class="stat-value"><?= $totalLowStock ?></div>
+                <div class="stat-label">Total Low Stock</div>
             </div>
-            <div class="summary-label">Critical (0–2)</div>
         </div>
-
-        <div class="summary-card">
-            <div class="summary-value" style="color:#f59e0b;">
-                <?= $warningCount ?>
+        <div class="stat-card critical">
+            <div class="stat-icon" style="background: rgba(239,68,68,0.15); color: #ef4444;">
+                <i data-lucide="alert-octagon" class="icon-20"></i>
             </div>
-            <div class="summary-label">Warning (3–Threshold)</div>
+            <div class="stat-info">
+                <div class="stat-value" style="color: #ef4444;"><?= $criticalCount ?></div>
+                <div class="stat-label">Critical (0–2)</div>
+            </div>
         </div>
-
+        <div class="stat-card warning">
+            <div class="stat-icon" style="background: rgba(245,158,11,0.15); color: #f59e0b;">
+                <i data-lucide="alert-circle" class="icon-20"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value" style="color: #f59e0b;"><?= $warningCount ?></div>
+                <div class="stat-label">Warning (3+)</div>
+            </div>
+        </div>
     </div>
 
-    <!-- TABLE -->
-    <div class="table-card">
-
-        <div class="table-header">
-            📦 Products Requiring Restock
+    <!-- Data Table -->
+    <div class="data-card">
+        <div class="data-header">
+            <h3 class="data-title">
+                <i data-lucide="package-x" class="icon-18"></i>
+                Products Requiring Restock
+            </h3>
         </div>
 
         <?php if (!empty($products)): ?>
 
-            <div class="table-wrap">
-
-                <table>
-
+            <div class="table-responsive">
+                <table class="data-table">
                     <thead>
                         <tr>
                             <th>#</th>
                             <th>Product</th>
-                            <th>Stock</th>
-                            <th>Threshold</th>
-                            <th>Buy Price</th>
-                            <th>Sell Price</th>
-                            <th>Status</th>
+                            <th class="text-center">Stock</th>
+                            <th class="text-center">Threshold</th>
+                            <th class="text-right">Buy Price</th>
+                            <th class="text-right">Sell Price</th>
+                            <th class="text-center">Status</th>
                         </tr>
                     </thead>
-
                     <tbody>
-
-                    <?php foreach ($products as $index => $product): ?>
-
-                        <?php
-                            $threshold = (int)$product->min_stock_alert;
-                            $isCritical = $product->stock_quantity <= 2;
-                        ?>
-
-                        <tr>
-
-                            <td><?= $index + 1 ?></td>
-
-                            <td><?= Html::encode($product->name) ?></td>
-
-                            <td>
-                                <span class="badge">
-                                    <?= (int)$product->stock_quantity ?>
-                                </span>
-                            </td>
-
-                            <td>
-                                <?= $threshold ?>
-                            </td>
-
-                            <td>
-                                TZS <?= number_format($product->buying_price, 2) ?>
-                            </td>
-
-                            <td>
-                                TZS <?= number_format($product->selling_price, 2) ?>
-                            </td>
-
-                            <td>
-
-                                <?php if ($isCritical): ?>
-                                    <span class="badge badge-critical">Critical</span>
-                                <?php else: ?>
-                                    <span class="badge badge-warning">Warning</span>
-                                <?php endif; ?>
-
-                            </td>
-
-                        </tr>
-
-                    <?php endforeach; ?>
-
+                        <?php foreach ($products as $index => $product): ?>
+                            <?php
+                                $threshold = (int)$product->min_stock_alert;
+                                $isCritical = $product->stock_quantity <= 2;
+                            ?>
+                            <tr class="<?= $isCritical ? 'critical-row' : '' ?>">
+                                <td class="mono text-muted"><?= $index + 1 ?></td>
+                                <td>
+                                    <div class="product-cell">
+                                        <div class="product-icon" style="background: <?= $isCritical ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)' ?>; color: <?= $isCritical ? '#ef4444' : '#f59e0b' ?>;">
+                                            <i data-lucide="box" class="icon-16"></i>
+                                        </div>
+                                        <span class="product-name"><?= Html::encode($product->name) ?></span>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge <?= $isCritical ? 'badge-danger' : 'badge-warning' ?>">
+                                        <?= (int)$product->stock_quantity ?>
+                                    </span>
+                                </td>
+                                <td class="text-center text-muted"><?= $threshold ?></td>
+                                <td class="text-right mono">TZS <?= number_format($product->buying_price, 2) ?></td>
+                                <td class="text-right mono">TZS <?= number_format($product->selling_price, 2) ?></td>
+                                <td class="text-center">
+                                    <?php if ($isCritical): ?>
+                                        <span class="badge badge-danger">Critical</span>
+                                    <?php else: ?>
+                                        <span class="badge badge-warning">Warning</span>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
                     </tbody>
-
                 </table>
-
             </div>
 
         <?php else: ?>
 
-            <div class="empty">
-                🎉 No low stock products found
+            <div class="empty-state">
+                <div class="empty-icon" style="background: rgba(34,197,94,0.15); color: #22c55e;">
+                    <i data-lucide="check-circle" class="icon-48"></i>
+                </div>
+                <h3>All stocked up!</h3>
+                <p>No products are running low on inventory</p>
             </div>
 
         <?php endif; ?>
@@ -170,161 +156,64 @@ BACKGROUND (MATCH SELLER DASHBOARD)
 
 </div>
 
-<!-- =========================
-STYLE (MATCH SELLER DASHBOARD EXACTLY)
-========================= -->
 <style>
-
-/* BODY */
-body{
-    margin:0;
-    font-family:'Segoe UI',sans-serif;
-    background:linear-gradient(135deg,#020617,#0f172a,#1e293b);
-    color:white;
+/* ============================================
+   ALERT BADGE
+   ============================================ */
+.alert-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: var(--radius-lg);
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--danger);
 }
 
-/* BACKGROUND BLOBS */
-.background-blobs{
-    position:fixed;
-    width:100%;
-    height:100%;
-    z-index:-1;
+/* ============================================
+   CRITICAL / WARNING CARDS
+   ============================================ */
+.stat-card.critical {
+    border-color: rgba(239, 68, 68, 0.3);
+    background: linear-gradient(135deg, var(--card-bg), rgba(239, 68, 68, 0.05));
 }
 
-.blob{
-    position:absolute;
-    border-radius:50%;
-    filter:blur(90px);
-    opacity:0.35;
-    animation:move 12s infinite alternate ease-in-out;
+.stat-card.warning {
+    border-color: rgba(245, 158, 11, 0.3);
+    background: linear-gradient(135deg, var(--card-bg), rgba(245, 158, 11, 0.05));
 }
 
-.blob1{
-    width:300px;height:300px;
-    background:#38bdf8;
-    top:-50px;left:-50px;
+/* ============================================
+   TABLE ROW HIGHLIGHTING
+   ============================================ */
+.critical-row {
+    background: rgba(239, 68, 68, 0.03);
 }
 
-.blob2{
-    width:250px;height:250px;
-    background:#8b5cf6;
-    bottom:-50px;right:-50px;
+.critical-row:hover {
+    background: rgba(239, 68, 68, 0.06) !important;
 }
 
-@keyframes move{
-    from{transform:translateY(0);}
-    to{transform:translateY(50px);}
+.badge-danger {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    font-weight: 600;
 }
 
-/* PAGE */
-.page-wrapper{
-    padding:40px;
+.badge-warning {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    font-weight: 600;
 }
 
-/* HEADER */
-.page-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:25px;
-    flex-wrap:wrap;
-    gap:10px;
-}
-
-.page-title{
-    font-size:32px;
-    font-weight:800;
-}
-
-.page-subtitle{
-    color:#94a3b8;
-    margin-top:5px;
-}
-
-/* BACK BUTTON */
-.back-btn{
-    padding:12px 18px;
-    border-radius:14px;
-    text-decoration:none;
-    color:white;
-    background:rgba(255,255,255,0.08);
-    border:1px solid rgba(255,255,255,0.1);
-    transition:0.3s;
-}
-
-.back-btn:hover{
-    transform:translateY(-3px);
-}
-
-/* SUMMARY */
-.summary-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:20px;
-    margin-bottom:30px;
-}
-
-.summary-card{
-    padding:22px;
-    border-radius:22px;
-    background:rgba(255,255,255,0.06);
-    border:1px solid rgba(255,255,255,0.08);
-    backdrop-filter:blur(18px);
-}
-
-/* TABLE CARD */
-.table-card{
-    background:rgba(255,255,255,0.05);
-    border-radius:22px;
-    overflow:hidden;
-    border:1px solid rgba(255,255,255,0.08);
-    backdrop-filter:blur(18px);
-}
-
-.table-header{
-    padding:18px;
-    font-weight:700;
-    border-bottom:1px solid rgba(255,255,255,0.08);
-}
-
-/* TABLE */
-.table-wrap{overflow:auto;}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-th,td{
-    padding:14px;
-    border-bottom:1px solid rgba(255,255,255,0.06);
-}
-
-thead{
-    background:rgba(255,255,255,0.04);
-}
-
-/* BADGES */
-.badge{
-    padding:6px 10px;
-    border-radius:999px;
-    background:#38bdf8;
-    font-size:12px;
-}
-
-.badge-critical{
-    background:#ef4444;
-}
-
-.badge-warning{
-    background:#f59e0b;
-}
-
-/* EMPTY */
-.empty{
-    padding:60px;
-    text-align:center;
-    color:#94a3b8;
-}
-
+/* Same table and responsive styles as daily-profit */
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+});
+</script>
